@@ -108,5 +108,4 @@ object Card {
             Befestigungsanlage(), Kaserne(), Wachturm()
         )
     }) grouped(players) map(Hand) toList
-
 }

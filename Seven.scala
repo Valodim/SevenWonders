@@ -9,6 +9,12 @@ object HelloWorld extends Application {
             case "n" => { s = s.nextRoundAny }
         }
     }
-
 }
 
+object SevenCli {
+
+    def pickCards(state: GameState): GameState = {
+        state
+    }
+
+}

@@ -21,13 +21,25 @@ case class PlayerState(
 
     def draft(card: Card) = (this + card, hand without card)
     lazy val pickAny = hand.pickAny
+
+    override def toString = {
+        s"""
+  Stats: $gold Gold, $vp VP, $shields Shields, $science Science
+  Resources: $resources
+  $hand
+        """
+    }
+
 }
 
 case class Hand(
     val cards: List[Card]
 ) {
     def without(card: Card) = copy(cards filter { _ != card })
+
     lazy val pickAny = cards.head
+    lazy override val toString = "Hand: " + cards.toString
+
 }
 
 case class GameState(
@@ -50,6 +62,18 @@ case class GameState(
 
     // draft with "any" pick
     def nextRoundAny = draft(players map { _.pickAny })
+
+    override def toString = {
+        val pstr = players.zipWithIndex map { case (p, i) => s"Player $i:" + p.toString + "\n" }
+
+s"""\n-- Seven State --
+Age: $age, Card left: $cardsLeft
+Players {
+    $pstr
+}
+"""
+    }
+
 }
 
 object GameState {
