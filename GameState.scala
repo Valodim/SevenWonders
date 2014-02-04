@@ -6,7 +6,7 @@ case class PlayerState(
     // player's (played) cards
     val cards: List[Card] = List(),
     // fixed resources
-    val resources: List[Resource] = List(),
+    val resources: Resources = Resources(),
     // military power
     val shields: Int = 0,
     // static victory points
@@ -23,7 +23,7 @@ case class PlayerState(
     lazy val pickAny = hand.pickAny
 
     // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
-    def options(left: PlayerState, right: PlayerState): (List[Card], List[Card], List[(Card,Int,Int,Int,Int)], List[Card]) = {
+    def options(left: PlayerState, right: PlayerState): (List[Card], List[Card], List[(Card,Resources,Resources,Resources,Resources)], List[Card]) = {
         val x1 = hand.filterAvailable(resources)
         val x2 = hand.filterAsUpgrade(cards)
         val x3 = hand.filterWithTrade(resources, left.resources, right.resources)
@@ -49,18 +49,18 @@ case class Hand(
     lazy val length = cards.length
     lazy override val toString = "Hand: " + cards.toString
 
-    def at(i: Int) = cards.drop(i).head
+    def at(i: Int) = cards(i)
 
-    def filterAvailable(res: List[Resource]) = cards filter ( _.resourceReq diff res isEmpty )
+    def filterAvailable(res: Resources) = cards filter ( _.resourceReq - res isEmpty )
     def filterAsUpgrade(cards: List[Card]) = cards intersect ( cards map { _.chains } flatten )
-    def filterWithTrade(res: List[Resource], left: List[Resource], right: List[Resource]) = cards map {
-        card => val req = card.resourceReq diff res
+    def filterWithTrade(res: Resources, left: Resources, right: Resources) = cards map {
+        card => 
+            val req = card.resourceReq - res
+            val either = req & left & right
             (
-                card,
-                req.length,
-                (req intersect left intersect right).length,
-                (req intersect left).length,
-                (req intersect right).length
+                card, req, either,
+                either - right,
+                either - left
             )
     }
 
