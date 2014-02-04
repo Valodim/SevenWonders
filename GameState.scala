@@ -3,7 +3,7 @@
 case class PlayerState(
     // player's current hand
     val hand: Hand,
-    // player's cards
+    // player's (played) cards
     val cards: List[Card] = List(),
     // fixed resources
     val resources: List[Resource] = List(),
@@ -22,6 +22,14 @@ case class PlayerState(
     def draft(card: Card) = (this + card, hand without card)
     lazy val pickAny = hand.pickAny
 
+    // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
+    def options(left: PlayerState, right: PlayerState): (List[Card], List[Card], List[(Card,Int,Int,Int,Int)], List[Card]) = {
+        val x1 = hand.filterAvailable(resources)
+        val x2 = hand.filterAsUpgrade(cards)
+        val x3 = hand.filterWithTrade(resources, left.resources, right.resources)
+        (x1, x2, x3, cards diff x1 diff x2 diff x3)
+    }
+
     override def toString = {
         s"""
   Stats: $gold Gold, $vp VP, $shields Shields, $science Science
@@ -38,7 +46,23 @@ case class Hand(
     def without(card: Card) = copy(cards filter { _ != card })
 
     lazy val pickAny = cards.head
+    lazy val length = cards.length
     lazy override val toString = "Hand: " + cards.toString
+
+    def at(i: Int) = cards.drop(i).head
+
+    def filterAvailable(res: List[Resource]) = cards filter ( _.resourceReq diff res isEmpty )
+    def filterAsUpgrade(cards: List[Card]) = cards intersect ( cards map { _.chains } flatten )
+    def filterWithTrade(res: List[Resource], left: List[Resource], right: List[Resource]) = cards map {
+        card => val req = card.resourceReq diff res
+            (
+                card,
+                req.length,
+                (req intersect left intersect right).length,
+                (req intersect left).length,
+                (req intersect right).length
+            )
+    }
 
 }
 

@@ -15,6 +15,8 @@ case class Cloth() extends Resource
 abstract class Card() {
     val goldCost: Int = 0
     val resourceReq: List[Resource] = List()
+    val chains: List[Card] = List()
+
     def benefit(s: PlayerState): PlayerState
 }
 abstract class BrownCard() extends Card {
