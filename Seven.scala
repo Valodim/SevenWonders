@@ -3,11 +3,13 @@ object Seven extends Application {
 
     // initial game state
     var s = GameState.newGame
+    var continue = true
 
-    while(true) {
+    while(continue) {
         readLine() match {
             case "p" => { println(s) }
             case "n" => { s = pickCards(s) }
+            case "q" => { continue = false }
         }
     }
 

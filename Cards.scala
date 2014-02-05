@@ -129,5 +129,5 @@ object Card {
             Tavern(),
             Befestigungsanlage(), Kaserne(), Wachturm()
         )
-    }) grouped(players) map(Hand) toList
+    }) grouped(5) map(Hand) toList
 }

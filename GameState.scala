@@ -45,6 +45,13 @@ case class PlayerState(
         )
     }
 
+    def totalvp() = {
+        bluevp + redvp + gold/3 + {
+            // science  ( _ * _ ) sum
+            + 7*(science._1 min science._2 min science._3)
+        }
+    }
+
 }
 
 case class Hand(
@@ -107,12 +114,13 @@ case class GameState(
     def nextRoundAny = draft(players map { _.pickAny })
 
     override def toString = {
-        val pstr = players.zipWithIndex map { case (p, i) => s"Player $i:" + p.toString + "\n" } mkString "\n"
+        val pstr = players.zipWithIndex map { case (p, i) => s"Player ${i+1}:" + p.toString + "\n" } mkString "\n"
 
 s"""\n-- Seven State --
 Age: $age, Card left: $cardsLeft
 Players {
-    $pstr
+
+$pstr
 }
 """
     }
