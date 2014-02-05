@@ -17,15 +17,10 @@ object Seven extends Application {
     def pickCards(state: GameState): GameState = {
         val (p, ps) = (state.players.head, state.players.tail)
         val picks = {
-            val (oFree, oChain, oTrade, oUnav) = p.options(ps.last, ps.head)
-            if(oFree.length > 0)
-                println("free: " + oFree.mkString(","))
-            if(oChain.length > 0)
-                println("chain: " + oChain.mkString(","))
-            if(oTrade.length > 0)
-                println("trade: " + oTrade.mkString(","))
-            if(oUnav.length > 0)
-                println("unavailable: " + oUnav.mkString(","))
+            val options = p.hand.options(p, ps.last, ps.head)
+            options.zipWithIndex foreach { case (option, i) =>
+                println(s"$i $option")
+            }
 
             // ugly :(
             var i = readInt

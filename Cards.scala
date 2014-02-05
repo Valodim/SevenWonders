@@ -31,6 +31,28 @@ abstract class Card() {
     val chains: List[Card] = List()
 
     def benefit(s: PlayerState): PlayerState
+
+    def categorize(res: Resources, chains: List[Card], left: Resources, right: Resources): CardOption = {
+        // can we chain-build this?
+        if ( chains.map( _.chains ).flatten contains this )
+            return CardChain(this)
+
+        // calculate resources we don't have
+        val req = resourceReq - res
+        // if we have everything - great
+        if(req isEmpty)
+            return CardFree(this)
+
+        // check if the required resources minus the potentially available ones is empty
+        if( (req - left - right) isEmpty) {
+            val either = req & left & right
+            return CardTrade(this, either, either & right, either & left)
+        }
+
+        // otherwise - can't touch this
+        CardUnavailable(this)
+
+    }
 }
 abstract class BrownCard() extends Card {
     val res: Resources
@@ -130,4 +152,21 @@ object Card {
             Befestigungsanlage(), Kaserne(), Wachturm()
         )
     }) grouped(5) map(Hand) toList
+}
+
+abstract class CardOption
+case class CardFree(card: Card) extends CardOption {
+    override def toString() = Console.GREEN + card + Console.RESET
+}
+
+case class CardChain(card: Card) extends CardOption {
+    override def toString() = Console.BLUE + card + Console.RESET
+}
+
+case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption {
+    override def toString() = Console.YELLOW + card + Console.RESET
+}
+
+case class CardUnavailable(card: Card) extends CardOption {
+    override def toString() = Console.RED + card + Console.RESET
 }

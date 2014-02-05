@@ -24,11 +24,6 @@ case class PlayerState(
     def draft(card: Card) = (this + card, hand without card)
     lazy val pickAny = hand.pickAny
 
-    // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
-    def options(left: PlayerState, right: PlayerState): (List[Card], List[Card], List[(Card,Resources,Resources,Resources,Resources)], List[Card]) = {
-        hand.filterOptions(resources, cards, left.resources, right.resources)
-    }
-
     override def toString = {
         s"""
   Stats: $gold Gold, $bluevp blue VP, $shields Shields, $redvp red VP, $science Science
@@ -65,21 +60,11 @@ case class Hand(
 
     def at(i: Int) = cards(i)
 
-    def filterOptions(res: Resources, chains: List[Card], left: Resources, right: Resources) = {
-        val forFree = cards filter ( _.resourceReq - res isEmpty )
-        val asUpgrade = cards diff forFree intersect ( chains map { _.chains } flatten )
-        val withTrade = cards diff forFree diff asUpgrade map {
-        card => 
-            val req = card.resourceReq - res
-            val either = req & left & right
-            (
-                card, req, either,
-                either - right,
-                either - left
-            )
-        }
-        (forFree, asUpgrade, withTrade, cards diff forFree diff asUpgrade diff (withTrade map { _._1 }) )
+    // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
+    def options(p: PlayerState, left: PlayerState, right: PlayerState): List[CardOption] = {
+        cards map( _.categorize(p.resources, p.cards, left.resources, right.resources) )
     }
+
 
 }
 
