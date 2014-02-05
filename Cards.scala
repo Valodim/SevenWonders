@@ -11,6 +11,8 @@ case class Resources(
     def +(that: Resources): Resources = this zip that map { case (l, r) => l + r }
     def -(that: Resources): Resources = this zip that map { case (l, r) => (l - r) max 0 }
 
+    override def toString() = s"Resources: $wood / $stone / $clay / $ore // $glass / $papyrus / $cloth"
+
 }
 
 object Resources {
@@ -45,7 +47,7 @@ abstract class RedCard() extends Card {
 }
 abstract class BlueCard() extends Card {
     val value: Int
-    def benefit(s: PlayerState) = s.copy(vp = s.vp + value)
+    def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + value)
 }
 abstract class YellowCard() extends Card
 abstract class PurpleCard() extends Card
@@ -112,8 +114,15 @@ case class Wachturm() extends RedCard {
 
 
 object Card {
-    def newGameHands(players: Int) = (players match {
-        case 3 => List(
+    def newAgeHands(players: Int, age: Int) = ((players, age) match {
+        case (3,1) => List(
+            WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
+            Press(), Weavery(), Glassery(),
+            Pfandhaus(), Bäder(), Altar(), Theatre(),
+            Tavern(),
+            Befestigungsanlage(), Kaserne(), Wachturm()
+        )
+        case (3,2) => List(
             WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
             Press(), Weavery(), Glassery(),
             Pfandhaus(), Bäder(), Altar(), Theatre(),

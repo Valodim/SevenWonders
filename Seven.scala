@@ -15,7 +15,15 @@ object Seven extends Application {
     def pickCards(state: GameState): GameState = {
         val (p, ps) = (state.players.head, state.players.tail)
         val picks = {
-            println(p.hand)
+            val (oFree, oChain, oTrade, oUnav) = p.options(ps.last, ps.head)
+            if(oFree.length > 0)
+                println("free: " + oFree.mkString(","))
+            if(oChain.length > 0)
+                println("chain: " + oChain.mkString(","))
+            if(oTrade.length > 0)
+                println("trade: " + oTrade.mkString(","))
+            if(oUnav.length > 0)
+                println("unavailable: " + oUnav.mkString(","))
 
             // ugly :(
             var i = readInt

@@ -9,8 +9,10 @@ case class PlayerState(
     val resources: Resources = Resources(),
     // military power
     val shields: Int = 0,
-    // static victory points
-    val vp: Int = 0,
+    // static victory points for blue cards
+    val bluevp: Int = 0,
+    // static vp for military wins
+    val redvp: Int = 0,
     // moneys
     val gold: Int = 0,
     // science, bitch! wheel, tablet, circledrawthingie
@@ -24,18 +26,23 @@ case class PlayerState(
 
     // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
     def options(left: PlayerState, right: PlayerState): (List[Card], List[Card], List[(Card,Resources,Resources,Resources,Resources)], List[Card]) = {
-        val x1 = hand.filterAvailable(resources)
-        val x2 = hand.filterAsUpgrade(cards)
-        val x3 = hand.filterWithTrade(resources, left.resources, right.resources)
-        (x1, x2, x3, cards diff x1 diff x2 diff x3)
+        hand.filterOptions(resources, cards, left.resources, right.resources)
     }
 
     override def toString = {
         s"""
-  Stats: $gold Gold, $vp VP, $shields Shields, $science Science
-  Resources: $resources
+  Stats: $gold Gold, $bluevp blue VP, $shields Shields, $redvp red VP, $science Science
+  $resources
   $hand
         """
+    }
+
+    def battle(age: Int, left: PlayerState, right: PlayerState): PlayerState = {
+        val vp = age match { case 1 => 1; case 2 => 3; case 3 => 5 }
+        copy(redvp = redvp
+            +(if(left.shields < shields) vp else if(left.shields > shields) -1 else 0)
+            +(if(right.shields < shields) vp else if(right.shields > shields) -1 else 0)
+        )
     }
 
 }
@@ -47,13 +54,14 @@ case class Hand(
 
     lazy val pickAny = cards.head
     lazy val length = cards.length
-    lazy override val toString = "Hand: " + cards.toString
+    lazy override val toString = "Hand: " + cards.mkString(", ")
 
     def at(i: Int) = cards(i)
 
-    def filterAvailable(res: Resources) = cards filter ( _.resourceReq - res isEmpty )
-    def filterAsUpgrade(cards: List[Card]) = cards intersect ( cards map { _.chains } flatten )
-    def filterWithTrade(res: Resources, left: Resources, right: Resources) = cards map {
+    def filterOptions(res: Resources, chains: List[Card], left: Resources, right: Resources) = {
+        val forFree = cards filter ( _.resourceReq - res isEmpty )
+        val asUpgrade = cards diff forFree intersect ( chains map { _.chains } flatten )
+        val withTrade = cards diff forFree diff asUpgrade map {
         card => 
             val req = card.resourceReq - res
             val either = req & left & right
@@ -62,6 +70,8 @@ case class Hand(
                 either - right,
                 either - left
             )
+        }
+        (forFree, asUpgrade, withTrade, cards diff forFree diff asUpgrade diff (withTrade map { _._1 }) )
     }
 
 }
@@ -84,11 +94,20 @@ case class GameState(
         })
     }
 
+    def newage(): GameState = {
+        val newCards = Card.newAgeHands(players.length, age+1)
+        val newPlayers = (players.tail ::: List(players.head), players, players.head :: players.tail).zipped map {
+            case (left, player, right) => player battle(age, left, right)
+        }
+
+        GameState(age+1, 7, newPlayers)
+    }
+
     // draft with "any" pick
     def nextRoundAny = draft(players map { _.pickAny })
 
     override def toString = {
-        val pstr = players.zipWithIndex map { case (p, i) => s"Player $i:" + p.toString + "\n" }
+        val pstr = players.zipWithIndex map { case (p, i) => s"Player $i:" + p.toString + "\n" } mkString "\n"
 
 s"""\n-- Seven State --
 Age: $age, Card left: $cardsLeft
@@ -102,6 +121,6 @@ Players {
 
 object GameState {
     def newGame(): GameState = {
-        GameState(players = Card.newGameHands(3) map { PlayerState(_) })
+        GameState(players = Card.newAgeHands(3, 1) map { PlayerState(_) })
     }
 }
