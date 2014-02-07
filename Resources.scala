@@ -55,5 +55,9 @@ object Resources {
         Resources(i.next, i.next, i.next, i.next, i.next, i.next, i.next, dyn)
     }
     implicit def toList(r: Resources): List[Int] = List(r.wood, r.stone, r.clay, r.ore, r.glass, r.papyrus, r.cloth)
+
+    // ...nicer way to do this?
+    def dynamic(wood: Int = 0, stone: Int = 0, clay: Int = 0, ore: Int = 0, glass: Int = 0, papyrus: Int = 0, cloth: Int = 0) =
+        Resources(dynamic=List(Resources(wood, stone, clay, ore, glass, papyrus, cloth)))
 }
 

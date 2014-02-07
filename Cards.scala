@@ -28,12 +28,8 @@ abstract class Card() {
     }
 }
 abstract class BrownCard() extends Card {
-    val res: Resources
-    val resdyn: Option[Resources] = None
-    def benefit(s: PlayerState) = s.copy(
-        resources = res + s.resources,
-        resdynamic = if(resdyn.isEmpty) s.resdynamic else resdyn.get :: s.resdynamic
-    )
+    val res: Resources = Resources()
+    def benefit(s: PlayerState) = s.copy(resources = res + s.resources)
 }
 abstract class GreyCard() extends Card {
     val res: Resources
@@ -75,13 +71,29 @@ case class OrePlace() extends BrownCard {
 case class StonePlace() extends BrownCard {
     override val res = Resources(stone = 1)
 }
+case class Baumschule() extends BrownCard {
+    override val goldCost = 1
+    override val res = Resources.dynamic(wood = 1, clay = 1)
+}
+case class Ausgrabungsstätte() extends BrownCard {
+    override val goldCost = 1
+    override val res = Resources.dynamic(stone = 1, clay = 1)
+}
 case class Tongrube() extends BrownCard {
     override val goldCost = 1
-    override val res = Resources(clay = 1, ore = 1)
+    override val res = Resources.dynamic(clay = 1, ore = 1)
 }
 case class Forstwirtschaft() extends BrownCard {
     override val goldCost = 1
-    override val res = Resources(stone = 1)
+    override val res = Resources.dynamic(wood = 1, stone =1)
+}
+case class Waldhöhle() extends BrownCard {
+    override val goldCost = 1
+    override val res = Resources.dynamic(wood = 1, ore = 1)
+}
+case class Mine() extends BrownCard {
+    override val goldCost = 1
+    override val res = Resources.dynamic(stone = 1, ore = 1)
 }
 
 // age 1 + 2 grey cards
