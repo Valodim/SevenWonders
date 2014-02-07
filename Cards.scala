@@ -1,3 +1,5 @@
+import scala.util.Random
+
 // card types
 abstract class Card() {
     val goldCost: Int = 0
@@ -166,7 +168,7 @@ case class Skriptorium() extends GreenCard {
 
 
 object Card {
-    def newAgeHands(players: Int, age: Int) = ((players, age) match {
+    def newAgeHands(players: Int, age: Int) = Random.shuffle((players, age) match {
         case (3,1) => List(
             WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
             Tongrube(), Forstwirtschaft(),
