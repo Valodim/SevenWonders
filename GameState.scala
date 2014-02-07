@@ -15,7 +15,7 @@ case class PlayerState(
     val redvp: Int = 0,
     // moneys
     val gold: Int = 0,
-    // science, bitch! wheel, tablet, circledrawthingie
+    // science, bitch! wheel, circledrawthingie, tablet
     val science: (Int, Int, Int) = (0, 0, 0)
 ) {
 

@@ -67,6 +67,16 @@ abstract class RedCard() extends Card {
     val value: Int
     def benefit(s: PlayerState) = s.copy(shields = s.shields + value)
 }
+abstract class GreenCard() extends Card {
+    val value: (Int,Int,Int)
+    def benefit(s: PlayerState) = s.copy(
+        science = (
+            s.science._1 + value._1,
+            s.science._2 + value._2,
+            s.science._3 + value._3
+        )
+    )
+}
 abstract class BlueCard() extends Card {
     val value: Int
     def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + value)
@@ -134,6 +144,17 @@ case class Wachturm() extends RedCard {
     override val resourceReq = Resources(clay = 1)
 }
 
+// age 1 green cards
+case class Apothecary() extends GreenCard {
+    override val value = (1,0,0)
+}
+case class Werkstatt() extends GreenCard {
+    override val value = (0,1,0)
+}
+case class Skriptorium() extends GreenCard {
+    override val value = (0,0,1)
+}
+
 
 object Card {
     def newAgeHands(players: Int, age: Int) = ((players, age) match {
@@ -142,7 +163,8 @@ object Card {
             Press(), Weavery(), Glassery(),
             Pfandhaus(), Bäder(), Altar(), Theatre(),
             Tavern(),
-            Befestigungsanlage(), Kaserne(), Wachturm()
+            Befestigungsanlage(), Kaserne(), Wachturm(),
+            Apothecary(), Werkstatt(), Skriptorium()
         )
         case (3,2) => List(
             WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
