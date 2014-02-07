@@ -32,8 +32,7 @@ case class PlayerState(
   Stats: $gold Gold, $bluevp blue VP, $shields Shields, $redvp red VP, $science Science
   Cards: ${cards.mkString(",")}
   $resources
-  $hand
-        """
+  $hand"""
     }
 
     def battle(age: Int, left: PlayerState, right: PlayerState): PlayerState = {
@@ -103,21 +102,20 @@ case class GameState(
     def nextRoundAny = draft(players map { _.pickAny })
 
     override def toString = {
-        val pstr = players.zipWithIndex map { case (p, i) => s"Player ${i+1}:" + p.toString + "\n" } mkString "\n"
+        val pstr = players.zipWithIndex map { case (p, i) => s"Player ${i+1}:" + p.toString + "\n" } mkString
 
 s"""\n-- Seven State --
 Age: $age, Card left: $cardsLeft
 Players {
 
 $pstr
-}
-"""
+}"""
     }
 
 }
 
 object GameState {
     def newGame(): GameState = {
-        GameState(players = Card.newAgeHands(3, 1) map { PlayerState(_) })
+        GameState(players = Card.newAgeHands(3, 1) map { PlayerState(_, gold = 3) })
     }
 }

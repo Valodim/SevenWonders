@@ -157,12 +157,15 @@ case class Wachturm() extends RedCard {
 
 // age 1 green cards
 case class Apothecary() extends GreenCard {
+    override val resourceReq = Resources(cloth = 1)
     override val value = (1,0,0)
 }
 case class Werkstatt() extends GreenCard {
+    override val resourceReq = Resources(glass = 1)
     override val value = (0,1,0)
 }
 case class Skriptorium() extends GreenCard {
+    override val resourceReq = Resources(papyrus = 1)
     override val value = (0,0,1)
 }
 
