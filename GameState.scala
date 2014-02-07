@@ -39,7 +39,10 @@ case class PlayerState(
     def playForFree(card: Card) = copy(hand without card) + card
     def discard(card: Card) = copy(hand without card)
 
-    lazy val pickAny = CardPick(hand.pickAny)
+    lazy val pickAny = hand.pickAny.categorize(this, Resources(), Resources()) match {
+        case card: CardAvailable => ActionPick(card)
+        case card => ActionDiscard(card)
+    }
 
     override def toString = {
         s"""

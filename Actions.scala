@@ -10,13 +10,16 @@ abstract class Action {
 
 // pick a card and play it. may involve trading!
 // TODO make sure all prerequisites are fulfilled
-case class CardPick(card: Card) extends Action {
-    def apply(p: PlayerState, g: GameState) = (p play card, None, Nil)
+case class ActionPick(option: CardAvailable) extends Action {
+    def apply(p: PlayerState, g: GameState) = (p play option.card, None, Nil)
+}
+case class ActionPickWithTrade(option: CardTrade) extends Action {
+    def apply(p: PlayerState, g: GameState) = (p play option.card, None, Nil)
 }
 
 // discard a card
-case class CardDiscard(card: Card) extends Action {
-    def apply(p: PlayerState, g: GameState) = (p.copy(gold = p.gold + 3), Some(card), Nil)
+case class ActionDiscard(option: CardOption) extends Action {
+    def apply(p: PlayerState, g: GameState) = (p.copy(gold = p.gold + 3), Some(option.card), Nil)
 }
 
 case class TradeMoney(amount: Int) extends Action {

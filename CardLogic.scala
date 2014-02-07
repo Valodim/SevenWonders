@@ -69,12 +69,15 @@ object Card {
     }) grouped(7) map(Hand) toList
 }
 
-abstract class CardOption
-case class CardFree(card: Card) extends CardOption {
+abstract class CardOption {
+    val card: Card
+}
+abstract class CardAvailable extends CardOption
+case class CardFree(card: Card) extends CardAvailable {
     override def toString() = Console.GREEN + "+ " + Console.RESET + card
 }
 
-case class CardChain(card: Card) extends CardOption {
+case class CardChain(card: Card) extends CardAvailable {
     override def toString() = Console.BLUE + "+ " + Console.RESET + card
 }
 

@@ -16,6 +16,7 @@ object Seven extends App {
     def pickCards(state: GameState): GameState = {
         val (p, ps) = (state.players.head, state.players.tail)
         val picks = {
+
             val options = p.hand.options(p, ps.last, ps.head)
             options.zipWithIndex foreach { case (option, i) =>
                 println(s"$i $option")
@@ -23,9 +24,10 @@ object Seven extends App {
 
             // ugly :(
             var i = readInt
-            while(i < 0 || i > p.hand.length) i = readInt()
+            options(i) match {
+                case x: CardAvailable => ActionPick(x)
+            }
 
-            CardPick(p.hand.at(i))
         } :: (ps map { _.pickAny })
 
         state.draft(picks)
