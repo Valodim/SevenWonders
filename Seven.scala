@@ -13,7 +13,6 @@ object Seven extends Application {
         }
     }
 
-
     def pickCards(state: GameState): GameState = {
         val (p, ps) = (state.players.head, state.players.tail)
         val picks = {

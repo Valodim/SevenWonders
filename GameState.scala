@@ -7,6 +7,8 @@ case class PlayerState(
     val cards: List[Card] = List(),
     // fixed resources
     val resources: Resources = Resources(),
+    // dynamic resources ("one of many")
+    val resdynamic: List[Resources] = List(),
     // military power
     val shields: Int = 0,
     // static victory points for blue cards

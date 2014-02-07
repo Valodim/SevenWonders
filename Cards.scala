@@ -2,24 +2,57 @@
 // yes those include both resources and goods
 case class Resources(
     wood: Int = 0, stone: Int = 0, clay: Int = 0, ore: Int = 0,
-    glass: Int = 0, papyrus: Int = 0, cloth: Int = 0
+    glass: Int = 0, papyrus: Int = 0, cloth: Int = 0,
+    dynamic: List[Resources] = List()
 ) {
 
     def isEmpty = this forall( _ == 0 )
+    def count = this.toList count( _ > 0 )
 
-    def &(that: Resources): Resources = this zip that map { case (l, r) => l min r }
-    def +(that: Resources): Resources = this zip that map { case (l, r) => l + r }
-    def -(that: Resources): Resources = this zip that map { case (l, r) => (l - r) max 0 }
+    def &(that: Resources): Resources = Resources.fromList(this zip that map { case (l, r) => l min r }, Nil)
+    def +(that: Resources): Resources = Resources.fromList(this zip that map { case (l, r) => l + r }, this.dynamic ++ that.dynamic)
 
-    override def toString() = s"Resources: $wood / $stone / $clay / $ore // $glass / $papyrus / $cloth"
+    // subtract resources. this is meant to be used in a "see what's left"
+    // manner, so the first argument must not have any dynamic resources!
+    def -(that: Resources): Resources = {
+        var left = Resources.fromList(this zip that map { case (l, r) => (l - r) max 0 })
+        // if all expenses are paid, or we have no dynamic resources, never mind
+        if( left.isEmpty || that.dynamic.isEmpty ) {
+            return left
+        }
+
+        // otherwise, there are dynamic resources to be spent!
+        // as long as the number reduces:
+        var len = 0
+        var dyn = that.dynamic
+        do {
+            len = left.count
+
+            // step 1: eliminate all uninteresting resource values for us
+            dyn = dyn map { d => (left & d) }
+            // step 2a: count number of relevant resources, and elminiate all that have none
+            val dyn2 = dyn zip (dyn map (_.count) ) filter ( _._2 > 0 )
+            // step 3: for all with only a single relevant resource, just apply it
+            dyn = dyn2 collect {
+                // so non-functional~
+                case (d, 1) => left = left - d; null
+                case (d, c) => d
+            } filter (_ != null)
+        } while(left.count < len)
+
+        // step 4: return all that are left
+        Resources.fromList(left, dyn)
+    }
+
+    override def toString() = s"[$wood / $stone / $clay / $ore // $glass / $papyrus / $cloth] " + (dynamic.mkString(", "))
 
 }
 
 object Resources {
-    implicit def fromList(l: List[Int]): Resources = {
+    def fromList(l: List[Int], dyn: List[Resources] = Nil): Resources = {
         val i = l.toIterator
         // not too happy with this ,but oh well
-        Resources(i.next, i.next, i.next, i.next, i.next, i.next)
+        Resources(i.next, i.next, i.next, i.next, i.next, i.next, i.next, dyn)
     }
     implicit def toList(r: Resources): List[Int] = List(r.wood, r.stone, r.clay, r.ore, r.glass, r.papyrus, r.cloth)
 }
@@ -51,12 +84,15 @@ abstract class Card() {
 
         // otherwise - can't touch this
         CardUnavailable(this)
-
     }
 }
 abstract class BrownCard() extends Card {
     val res: Resources
-    def benefit(s: PlayerState) = s.copy(resources = res + s.resources)
+    val resdyn: Option[Resources] = None
+    def benefit(s: PlayerState) = s.copy(
+        resources = res + s.resources,
+        resdynamic = if(resdyn.isEmpty) s.resdynamic else resdyn.get :: s.resdynamic
+    )
 }
 abstract class GreyCard() extends Card {
     val res: Resources
@@ -96,6 +132,14 @@ case class OrePlace() extends BrownCard {
     override val res = Resources(ore = 1)
 }
 case class StonePlace() extends BrownCard {
+    override val res = Resources(stone = 1)
+}
+case class Tongrube() extends BrownCard {
+    override val goldCost = 1
+    override val res = Resources(clay = 1, ore = 1)
+}
+case class Forstwirtschaft() extends BrownCard {
+    override val goldCost = 1
     override val res = Resources(stone = 1)
 }
 
@@ -160,9 +204,17 @@ object Card {
     def newAgeHands(players: Int, age: Int) = ((players, age) match {
         case (3,1) => List(
             WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
+            Tongrube(), Forstwirtschaft(),
+            Press(), Weavery(), Glassery(),
+            Bäder(), Altar(), Theatre(),
+            Befestigungsanlage(), Kaserne(), Wachturm(),
+            Apothecary(), Werkstatt(), Skriptorium()
+        )
+        case (4,1) => List(
+            WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
+            Tongrube(), Forstwirtschaft(),
             Press(), Weavery(), Glassery(),
             Pfandhaus(), Bäder(), Altar(), Theatre(),
-            Tavern(),
             Befestigungsanlage(), Kaserne(), Wachturm(),
             Apothecary(), Werkstatt(), Skriptorium()
         )
@@ -173,22 +225,22 @@ object Card {
             Tavern(),
             Befestigungsanlage(), Kaserne(), Wachturm()
         )
-    }) grouped(5) map(Hand) toList
+    }) grouped(7) map(Hand) toList
 }
 
 abstract class CardOption
 case class CardFree(card: Card) extends CardOption {
-    override def toString() = Console.GREEN + card + Console.RESET
+    override def toString() = Console.GREEN + "+ " + Console.RESET + card
 }
 
 case class CardChain(card: Card) extends CardOption {
-    override def toString() = Console.BLUE + card + Console.RESET
+    override def toString() = Console.BLUE + "+ " + Console.RESET + card
 }
 
 case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption {
-    override def toString() = Console.YELLOW + card + Console.RESET
+    override def toString() = Console.YELLOW + "+ " + Console.RESET + card
 }
 
 case class CardUnavailable(card: Card) extends CardOption {
-    override def toString() = Console.RED + card + Console.RESET
+    override def toString() = Console.RED + "— " + Console.RESET + card
 }
