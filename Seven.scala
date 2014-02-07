@@ -1,5 +1,5 @@
 
-object Seven extends Application {
+object Seven extends App {
 
     // initial game state
     var s = GameState.newGame
@@ -25,7 +25,7 @@ object Seven extends Application {
             var i = readInt
             while(i < 0 || i > p.hand.length) i = readInt()
 
-            p.hand.at(i)
+            CardPick(p.hand.at(i))
         } :: (ps map { _.pickAny })
 
         state.draft(picks)

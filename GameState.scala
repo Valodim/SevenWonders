@@ -28,9 +28,10 @@ case class PlayerState(
     lazy val allResources = resources + noTradeResources
 
     def +(card: Card) = card benefit copy(cards = card :: cards)
+    def play(card: Card) = copy(hand without card) + card
+    def discard(card: Card) = copy(hand without card)
 
-    def draft(card: Card) = (this + card, hand without card)
-    lazy val pickAny = hand.pickAny
+    lazy val pickAny = CardPick(hand.pickAny)
 
     override def toString = {
         s"""
@@ -79,19 +80,26 @@ case class Hand(
 case class GameState(
     val age: Int = 1,
     val cardsLeft: Int = 7,
-    val players: List[PlayerState]
+    val players: List[PlayerState],
+    val discardPile: List[Card] = List()
 ) {
     // draft with given card picks
-    def draft(picks: List[Card]): GameState = {
+    def draft(actions: Seq[Action]): GameState = {
         // derive new playerstates after card picks
-        val (playersPrime: List[PlayerState], drafts) = (players zip picks).map {
-            case (player, pick) => player draft pick
-        } unzip
+        val playersPrime = (players zip actions).map {
+            case (player, action) => action(player)
+        }
 
-        // draft hands to next player (right-hand)
-        copy(cardsLeft = cardsLeft-1, players = (playersPrime zip (drafts.tail ::: List(drafts.head))).map {
-            case (player, hand) => player.copy(hand = hand)
-        })
+        // draft to the right
+        lazy val afterDraftLeft = (playersPrime zip (playersPrime.tail ::: List(playersPrime.head))).map {
+            case (player, next) => player.copy(hand = next.hand)
+        }
+        // draft to the left
+        lazy val afterDraftRight = (playersPrime zip (playersPrime.last :: playersPrime)).map {
+            case (player, next) => player.copy(hand = next.hand)
+        }
+
+        copy(cardsLeft = cardsLeft-1, players = if(age % 2 == 0) afterDraftLeft else afterDraftRight)
     }
 
     def newage(): GameState = {
@@ -103,16 +111,12 @@ case class GameState(
         GameState(age+1, 7, newPlayers)
     }
 
-    // draft with "any" pick
-    def nextRoundAny = draft(players map { _.pickAny })
-
     override def toString = {
         val pstr = players.zipWithIndex map { case (p, i) => s"Player ${i+1}:" + p.toString + "\n" } mkString
 
 s"""\n-- Seven State --
 Age: $age, Card left: $cardsLeft
 Players {
-
 $pstr
 }"""
     }
