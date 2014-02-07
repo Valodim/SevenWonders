@@ -6,15 +6,23 @@ abstract class Card() {
     val resourceReq: Resources = Resources()
     val chains: List[Card] = List()
 
-    def benefit(s: PlayerState): PlayerState
+    def pay(p: PlayerState): PlayerState = p.copy(gold = p.gold-goldCost)
+    def benefit(p: PlayerState): PlayerState
 
-    def categorize(res: Resources, chains: List[Card], left: Resources, right: Resources): CardOption = {
+    def categorize(p: PlayerState, left: Resources, right: Resources): CardOption = {
+        if ( p.cards contains this )
+            return CardDuplicate(this)
+
         // can we chain-build this?
-        if ( chains.map( _.chains ).flatten contains this )
+        if ( p.cards.map( _.chains ).flatten contains this )
             return CardChain(this)
 
+        // Insufficient moneyz?
+        if ( p.gold < goldCost )
+            return CardInsufficientFunds(this)
+
         // calculate resources we don't have
-        val req = resourceReq - res
+        val req = resourceReq - p.allResources
         // if we have everything - great
         if(req isEmpty)
             return CardFree(this)
@@ -72,6 +80,14 @@ case class CardChain(card: Card) extends CardOption {
 
 case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption {
     override def toString() = Console.YELLOW + "+ " + Console.RESET + card
+}
+
+case class CardInsufficientFunds(card: Card) extends CardOption {
+    override def toString() = Console.RED + "— " + Console.RESET + card
+}
+
+case class CardDuplicate(card: Card) extends CardOption {
+    override def toString() = Console.RED + "— " + Console.RESET + card
 }
 
 case class CardUnavailable(card: Card) extends CardOption {

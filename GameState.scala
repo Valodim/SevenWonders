@@ -28,7 +28,8 @@ case class PlayerState(
     lazy val allResources = resources + noTradeResources
 
     def +(card: Card) = card benefit copy(cards = card :: cards)
-    def play(card: Card) = copy(hand without card) + card
+    def play(card: Card) = card pay copy(hand without card) + card
+    def playForFree(card: Card) = copy(hand without card) + card
     def discard(card: Card) = copy(hand without card)
 
     lazy val pickAny = CardPick(hand.pickAny)
@@ -71,7 +72,7 @@ case class Hand(
 
     // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
     def options(p: PlayerState, left: PlayerState, right: PlayerState): List[CardOption] = {
-        cards map( _.categorize(p.allResources, p.cards, left.resources, right.resources) )
+        cards map( _.categorize(p, left.resources, right.resources) )
     }
 
 
