@@ -97,15 +97,15 @@ case class GameState(
     // draft with given card picks
     def draft(actions: Seq[Action]): GameState = {
         // derive new playerstates after card picks
-        val (playersPrime, discards, lateops) = (players zip actions).map {
+        val (playersPrim, discards, lateops) = (players zip actions).map {
             case (player, action) => action(player, this)
         } unzip3
 
-        // ugly~ if you have a nicer way to do this, I'm all ears
-        // only other way I can think of is transforming Action.apply and
-        // reducing from there, but that's not really much better...
-        val playersPrime2 = playersPrime map { p =>
+        val playersPrime = playersPrim map { p =>
             var pPrime = p
+            // ugly~ if you have a nicer way to do this, I'm all ears
+            // only other way I can think of is transforming Action.apply and
+            // reducing from there, but that's not really much better...
             lateops.flatten collect { case (p.number, o) => o } foreach { o =>
                 // apply action!
                 pPrime = o(pPrime, this)._1

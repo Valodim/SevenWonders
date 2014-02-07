@@ -30,7 +30,7 @@ abstract class Card() {
         // check if the required resources minus the potentially available ones is empty
         if( (req - left - right) isEmpty) {
             val either = req & left & right
-            return CardTrade(this, either, either & right, either & left)
+            return CardTrade(this, either, (req & right) - either, (req & left) - either)
         }
 
         // otherwise - can't touch this
@@ -39,7 +39,7 @@ abstract class Card() {
 }
 
 object Card {
-    def newAgeHands(players: Int, age: Int) = Random.shuffle((players, age) match {
+    def newAgeHands(players: Int, age: Int) = ((players, age) match {
         case (3,1) => List(
             WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
             Tongrube(), Forstwirtschaft(),

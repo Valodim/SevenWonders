@@ -26,6 +26,13 @@ object Seven extends App {
             var i = readInt
             options(i) match {
                 case x: CardAvailable => ActionPick(x)
+                case x @ CardTrade(card, either, left, right) => {
+                    println(either)
+                    println(left)
+                    println(right)
+                    ActionPickWithTrade(x, left, right)
+                }
+                case x: CardUnavailable => ActionDiscard(x)
             }
 
         } :: (ps map { _.pickAny })
