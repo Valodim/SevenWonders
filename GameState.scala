@@ -7,6 +7,8 @@ case class PlayerState(
     val cards: List[Card] = List(),
     // fixed resources
     val resources: Resources = Resources(),
+    // fixed, untradable resources
+    val noTradeResources: Resources = Resources(),
     // military power
     val shields: Int = 0,
     // static victory points for blue cards
@@ -21,6 +23,9 @@ case class PlayerState(
     // science, bitch! wheel, circledrawthingie, tablet
     val science: (Int, Int, Int) = (0, 0, 0)
 ) {
+
+    // all resources (available to the player)
+    lazy val allResources = resources + noTradeResources
 
     def +(card: Card) = card benefit copy(cards = card :: cards)
 
@@ -65,7 +70,7 @@ case class Hand(
 
     // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
     def options(p: PlayerState, left: PlayerState, right: PlayerState): List[CardOption] = {
-        cards map( _.categorize(p.resources, p.cards, left.resources, right.resources) )
+        cards map( _.categorize(p.allResources, p.cards, left.resources, right.resources) )
     }
 
 
