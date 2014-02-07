@@ -17,6 +17,9 @@ case class PlayerState(
     val redvp: Int = 0,
     // moneys
     val gold: Int = 0,
+    // trading, resources vs goods
+    val tradeLeft: (Int, Int) = (2, 2),
+    val tradeRight: (Int, Int) = (2, 2),
     // science, bitch! wheel, circledrawthingie, tablet
     val science: (Int, Int, Int) = (0, 0, 0)
 ) {

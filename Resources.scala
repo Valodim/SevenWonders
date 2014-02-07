@@ -5,7 +5,8 @@ case class Resources(
     dynamic: List[Resources] = List()
 ) {
 
-    def isEmpty = this forall( _ == 0 )
+    def isEmpty = this.forall( _ == 0 ) && dynamic.isEmpty
+    // returns the number of non-null resources
     def count = this.toList count( _ > 0 )
 
     def &(that: Resources): Resources = Resources.fromList(this zip that map { case (l, r) => l min r }, Nil)

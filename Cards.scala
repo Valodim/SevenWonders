@@ -114,6 +114,18 @@ case class Theatre() extends BlueCard {
 case class Tavern() extends YellowCard {
     def benefit(s: PlayerState) = s.copy(gold = s.gold + 5)
 }
+case class KontorOst() extends YellowCard {
+    def benefit(s: PlayerState) = s.copy(tradeRight = (1, s.tradeRight._2))
+}
+case class KontorWest() extends YellowCard {
+    def benefit(s: PlayerState) = s.copy(tradeLeft = (1, s.tradeRight._2))
+}
+case class Market() extends YellowCard {
+    def benefit(s: PlayerState) = s.copy(
+        tradeLeft = (s.tradeRight._2, 1),
+        tradeRight = (s.tradeRight._2, 1)
+    )
+}
 
 // age 1 red cards
 case class Befestigungsanlage() extends RedCard {
@@ -148,6 +160,7 @@ object Card {
             Tongrube(), Forstwirtschaft(),
             Press(), Weavery(), Glassery(),
             Bäder(), Altar(), Theatre(),
+            KontorOst(), KontorWest(), Market(),
             Befestigungsanlage(), Kaserne(), Wachturm(),
             Apothecary(), Werkstatt(), Skriptorium()
         )
@@ -156,6 +169,7 @@ object Card {
             Tongrube(), Forstwirtschaft(),
             Press(), Weavery(), Glassery(),
             Pfandhaus(), Bäder(), Altar(), Theatre(),
+            Tavern(), KontorOst(), KontorWest(), Market(),
             Befestigungsanlage(), Kaserne(), Wachturm(),
             Apothecary(), Werkstatt(), Skriptorium()
         )
