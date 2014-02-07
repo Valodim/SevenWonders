@@ -1,8 +1,15 @@
+import PlayerState.PlayerNumber
+
+object PlayerState {
+    type PlayerNumber = Int
+}
 
 // summary of a player's current state
 case class PlayerState(
     // player's current hand
     val hand: Hand,
+    // player number
+    val number: PlayerNumber,
     // player's (played) cards
     val cards: List[Card] = List(),
     // fixed resources
@@ -87,8 +94,20 @@ case class GameState(
     // draft with given card picks
     def draft(actions: Seq[Action]): GameState = {
         // derive new playerstates after card picks
-        val playersPrime = (players zip actions).map {
-            case (player, action) => action(player)
+        val (playersPrime, discards, lateops) = (players zip actions).map {
+            case (player, action) => action(player, this)
+        } unzip3
+
+        // ugly~ if you have a nicer way to do this, I'm all ears
+        // only other way I can think of is transforming Action.apply and
+        // reducing from there, but that's not really much better...
+        val playersPrime2 = playersPrime map { p =>
+            var pPrime = p
+            lateops.flatten collect { case (p.number, o) => o } foreach { o =>
+                // apply action!
+                pPrime = o(pPrime, this)._1
+            }
+            pPrime
         }
 
         // draft to the right
@@ -100,7 +119,13 @@ case class GameState(
             case (player, next) => player.copy(hand = next.hand)
         }
 
-        copy(cardsLeft = cardsLeft-1, players = if(age % 2 == 0) afterDraftLeft else afterDraftRight)
+        // TODO new age (no drafts but new cards)
+
+        copy(
+            cardsLeft = cardsLeft-1,
+            players = if(age % 2 == 0) afterDraftLeft else afterDraftRight,
+            discardPile = discardPile ::: discards.collect { case Some(x) => x }
+        )
     }
 
     def newage(): GameState = {
@@ -126,6 +151,6 @@ $pstr
 
 object GameState {
     def newGame(): GameState = {
-        GameState(players = Card.newAgeHands(3, 1) map { PlayerState(_, gold = 3) })
+        GameState(players = Card.newAgeHands(3, 1).zipWithIndex map { case (hand, i) => PlayerState(hand, i, gold = 3) })
     }
 }
