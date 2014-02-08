@@ -114,7 +114,7 @@ case class CardChain(card: Card) extends CardAvailable {
     override def toString() = Console.BLUE + "+ " + Console.RESET + card
 }
 
-case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption {
+case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption with TradeOption {
     override def toString() = Console.YELLOW + "+ " + Console.RESET + card
 }
 

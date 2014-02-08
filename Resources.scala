@@ -44,11 +44,28 @@ case class Resources(
         Resources.fromList(left, dyn)
     }
 
+    /** Split into singleton instances of Resources.
+     * Note that dynamic resources are not supported here!
+     */
+    def split(): List[Resources] = {
+        this.zipWithIndex flatMap { case (0, i) => Nil; case (x, i) => List.fill(x)(Resources.singleton(i)) }
+    }
+
     override def toString() = s"[$wood / $stone / $clay / $ore // $glass / $papyrus / $cloth] " + (dynamic.mkString(", "))
 
 }
 
 object Resources {
+    def singleton(i: Int) = i match {
+        case 0 => Resources(wood = 1)
+        case 1 => Resources(stone = 1)
+        case 2 => Resources(clay = 1)
+        case 3 => Resources(ore = 1)
+        case 4 => Resources(glass = 1)
+        case 5 => Resources(papyrus = 1)
+        case 6 => Resources(cloth = 1)
+    }
+
     def fromList(l: List[Int], dyn: List[Resources] = Nil): Resources = {
         val i = l.toIterator
         // not too happy with this ,but oh well

@@ -53,16 +53,20 @@ object Seven extends App {
             // if trade is needed, get a trade instance as well
             case x @ CardTrade(card, either, left, right) => {
                 // todo
-                ActionPickWithTrade(x, TradeCard(x, 0, 0, 0))
+                ActionPickWithTrade(x, Trade(0, 0, 0))
             }
             // free wonder - but which card to stuff?
             case x: WonderFree => ActionWonder(x, cardOptions(0))
             case x @ WonderTrade(stage, either, left, right) => {
                 // todo
-                ActionWonderWithTrade(x, TradeWonder(x, 0, 0, 0), cardOptions(0))
+                ActionWonderWithTrade(x, Trade(0, 0, 0), cardOptions(0))
             }
         }
 
     }
+
+    // def interactiveTrade(either: Resources, left: Resources, right: Resources): Trade = {
+        // Trade.offer(either, left, right, 0, 0)
+    // }
 
 }

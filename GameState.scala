@@ -189,6 +189,11 @@ object GameState {
 }
 
 abstract class PlayerOption
+trait TradeOption {
+    val either: Resources
+    val left: Resources
+    val right: Resources
+}
 case class OptionDiscard {
     override def toString() = s"${Console.RED}~${Console.RESET} Discard a card"
 }

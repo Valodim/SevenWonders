@@ -25,7 +25,7 @@ case class ActionPick(option: CardAvailable) extends Action {
     def apply(p: PlayerState, g: GameState) = (p play(option.card, g), None, Nil)
 }
 // pick a card to play. trade decisions~
-case class ActionPickWithTrade(option: CardTrade, trade: TradeCard) extends Action {
+case class ActionPickWithTrade(option: CardTrade, trade: Trade) extends Action {
     def apply(p: PlayerState, g: GameState) = {
         (p.copy(gold = p.gold - trade.cost) play(option.card, g), None, List(
             ( (p.number-1+g.players.length) % g.players.length, TradeMoney(trade.toLeft)),
@@ -43,7 +43,7 @@ case class ActionWonder(option: WonderFree, card: CardOption) extends Action {
         (option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, Nil)
     }
 }
-case class ActionWonderWithTrade(option: WonderTrade, trade: TradeWonder, card: CardOption) extends Action {
+case class ActionWonderWithTrade(option: WonderTrade, trade: Trade, card: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = {
         (option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, List(
             ( (p.number-1+g.players.length) % g.players.length, TradeMoney(trade.toLeft)),
