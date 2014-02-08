@@ -3,27 +3,24 @@ import scala.util.control._
 object Seven extends App {
 
     // initial game state
-    var s = GameState.newGame
+    var g = GameState.newGame
     var continue = true
 
     while(continue) {
+        println(s"Age ${g.age}, ${g.cardsLeft} cards left")
         readLine() match {
-            case "p" => { println(s) }
-            case "n" => { s = pickCards(s) }
+            case "p" => { println(g) }
             case "q" => { continue = false }
+            case "n" => interactiveTurn(g) map { g = _ }
+            case _ => { println("Invalid command") }
         }
     }
 
-    def pickCards(g: GameState): GameState = {
+    def interactiveTurn(g: GameState): Option[GameState] = {
         val (p, ps) = (g.players.head, g.players.tail)
-        val actions = {
-            var action: Option[Action] = None
-            // do {
-                action = interactiveAction(p, g)
-            // } while(action.isEmpty)
-            action.get
-        } :: (ps map { _.pickAny })
-        g.draft(actions)
+        interactiveAction(p, g) flatMap {
+            action => Some(g.draft(action :: (ps map { _.pickAny })))
+        }
     }
 
     def interactiveAction(p: PlayerState, g: GameState): Option[Action] = {

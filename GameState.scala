@@ -35,6 +35,8 @@ case class PlayerState(
     val science: (Int, Int, Int) = (0, 0, 0)
 ) {
 
+    lazy val name = s"Player ${number+1}"
+
     // all resources (available to the player)
     lazy val allResources = resources + noTradeResources
     lazy val costsLeft = List.fill(4)(tradeLeft._1) ::: List.fill(3)(tradeLeft._2)
@@ -61,10 +63,10 @@ case class PlayerState(
 
     override def toString = {
         s""" $wonder
-  Stats: $gold Gold, $shields Shields, $redvp red VP, $science Science
+  Stats: $gold Gold, $shields Shields, $redvp red VP, $redlost red -VP, $science Science
+  Trade cost: l$tradeLeft r$tradeRight, ${wonderStuffed.length} cards stuffed
   Cards: ${cards.mkString(",")}
-  $resources
-  $hand"""
+  $resources"""
     }
 
     def battle(g: GameState): PlayerState = {
@@ -73,6 +75,7 @@ case class PlayerState(
         // dat syntax :|
         val wins = (if(left.shields < shields) 1 else 0) + (if(right.shields < shields) 1 else 0)
         val losses = (if(left.shields > shields) 1 else 0) + (if(right.shields > shields) 1 else 0)
+        println(s"Battle: $name gets $wins wins and $losses losses, for a total of ${vp*wins-losses} VP!")
         copy(redvp = redvp + vp*wins, redlost = redlost-losses)
     }
 
@@ -124,47 +127,66 @@ case class GameState(
     // draft with given card picks
     def draft(actions: Seq[Action]): GameState = {
         // derive new playerstates after card picks
-        val (playersPrim, discards, lateops) = (players zip actions).map {
-            case (player, action) => action(player, this)
+        val (playersPrime1, discards, lateops) = (players zip actions).map {
+            case (player, action) => {
+                println(action.describe(player, this))
+                action(player, this)
+            }
         } unzip3
 
-        val playersPrime = playersPrim map { p =>
+        // gonna need this for Halikarnassos at some point
+        var newDiscards = discardPile ::: discards.collect { case Some(x) => x }
+        // if this was the last pick, add remaining cards to discard pile
+        if(cardsLeft == 2)
+            newDiscards = newDiscards ::: playersPrime1.map{ _.hand.cards }.flatten
+
+        val playersPrime2 = playersPrime1 map { p =>
             var pPrime = p
             // ugly~ if you have a nicer way to do this, I'm all ears
             // only other way I can think of is transforming Action.apply and
             // reducing from there, but that's not really much better...
             lateops.flatten collect { case (p.number, o) => o } foreach { o =>
                 // apply action!
-                pPrime = o(pPrime, this)._1
+                pPrime = o(pPrime, this, newDiscards)._1
             }
             pPrime
         }
 
         // draft to the right
-        lazy val afterDraftLeft = (playersPrime zip (playersPrime.tail ::: List(playersPrime.head))).map {
+        lazy val afterDraftLeft = (playersPrime2 zip (playersPrime2.tail ::: List(playersPrime2.head))).map {
             case (player, next) => player.copy(hand = next.hand)
         }
         // draft to the left
-        lazy val afterDraftRight = (playersPrime zip (playersPrime.last :: playersPrime)).map {
+        lazy val afterDraftRight = (playersPrime2 zip (playersPrime2.last :: playersPrime2)).map {
             case (player, next) => player.copy(hand = next.hand)
         }
 
-        // TODO new age (no drafts but new cards)
+        // if this is a new age, handle this in another method
+        if(cardsLeft == 2)
+            newAge(playersPrime2, newDiscards)
+        // otherwise, just apply the new values
+        else
+            copy(
+                cardsLeft = cardsLeft-1,
+                players = if(age % 2 == 0) afterDraftLeft else afterDraftRight,
+                discardPile = newDiscards
+            )
 
-        copy(
-            cardsLeft = cardsLeft-1,
-            players = if(age % 2 == 0) afterDraftLeft else afterDraftRight,
-            discardPile = discardPile ::: discards.collect { case Some(x) => x }
-        )
     }
 
-    def newage(): GameState = {
-        val newCards = Card.newAgeHands(players.length, age+1)
-        val newPlayers = (players.tail ::: List(players.head), players, players.head :: players.tail).zipped map {
+    def newAge(playersPrime2: List[PlayerState], newDiscards: List[Card]): GameState = {
+        // Do battle!
+        val playersPrime3 = (playersPrime2.tail ::: List(playersPrime2.head), playersPrime2, playersPrime2.head :: playersPrime2.tail).zipped map {
             case (left, player, right) => player battle(this)
         }
 
-        GameState(age+1, 7, newPlayers)
+        // Hand out a shiny new set of cards
+        val playersPrime4 = playersPrime3 zip Card.newAgeHands(players.length, age+1) map {
+            case (player, hand) => player.copy(hand)
+        }
+
+        // It's a brand new day!
+        GameState(age+1, 7, playersPrime3, discardPile = newDiscards)
     }
 
     override def toString = {
