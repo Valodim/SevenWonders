@@ -47,9 +47,9 @@ case class ActionWonder(option: CardOption) extends Action {
 
 // discard a card
 case class ActionDiscard(option: CardOption) extends Action {
-    def apply(p: PlayerState, g: GameState) = (p.copy(gold = p.gold + 3) discard option.card, Some(option.card), Nil)
+    def apply(p: PlayerState, g: GameState) = (p addGold(3) discard(option.card), Some(option.card), Nil)
 }
 
 case class TradeMoney(amount: Int) extends Action {
-    def apply(p: PlayerState, g: GameState) = (p.copy(gold = p.gold + amount), None, Nil)
+    def apply(p: PlayerState, g: GameState) = (p addGold(amount), None, Nil)
 }

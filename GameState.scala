@@ -40,6 +40,8 @@ case class PlayerState(
     def playForFree(card: Card, g: GameState) = card.benefit(copy(hand without card),g)
     def discard(card: Card) = copy(hand without card)
 
+    def addGold(amount: Int) = copy(gold = gold+amount)
+
     lazy val pickAny = hand.pickAny.categorize(this, Resources(), Resources()) match {
         case card: CardAvailable => ActionPick(card)
         case card => ActionDiscard(card)
@@ -47,6 +49,9 @@ case class PlayerState(
 
     def lefty(g: GameState) = g.players( (number-1+g.players.length) % g.players.length)
     def righty(g: GameState) = g.players( (number+1) % g.players.length)
+    def count(pred: (Card => Boolean)): Int = cards.count(pred)
+    def countNeighbors(pred: (Card => Boolean), g: GameState): Int = lefty(g).count(pred) + righty(g).count(pred)
+    def countAll(pred: (Card => Boolean), g: GameState): Int = count(pred) + countNeighbors(pred, g)
 
     override def toString = {
         s""" $wonder
