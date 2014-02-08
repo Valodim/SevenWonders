@@ -343,6 +343,7 @@ case class GuildSpies() extends PurpleCard {
 }
 case class GuildStrategists() extends PurpleCard {
     override val resourceReq = Resources(ore = 2, stone = 1, cloth = 1)
+    override def worth(p: PlayerState, g: GameState) = ((p lefty g).redlost + (p righty g).redlost) abs
 }
 case class GuildReeder() extends PurpleCard {
     override val resourceReq = Resources(wood = 3, glass = 1, papyrus = 1)

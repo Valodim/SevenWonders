@@ -24,6 +24,8 @@ case class PlayerState(
     val shields: Int = 0,
     // static vp for military wins
     val redvp: Int = 0,
+    // static negative vp for military losses
+    val redlost: Int = 0,
     // moneys
     val gold: Int = 0,
     // trading, resources vs goods
@@ -61,18 +63,30 @@ case class PlayerState(
   $hand"""
     }
 
-    def battle(age: Int, left: PlayerState, right: PlayerState): PlayerState = {
-        val vp = age match { case 1 => 1; case 2 => 3; case 3 => 5 }
-        copy(redvp = redvp
-            +(if(left.shields < shields) vp else if(left.shields > shields) -1 else 0)
-            +(if(right.shields < shields) vp else if(right.shields > shields) -1 else 0)
-        )
+    def battle(g: GameState): PlayerState = {
+        val vp = g.age match { case 1 => 1; case 2 => 3; case 3 => 5 }
+        val (left, right) = (lefty(g), righty(g))
+        // dat syntax :|
+        val wins = (if(left.shields < shields) 1 else 0) + (if(right.shields < shields) 1 else 0)
+        val losses = (if(left.shields > shields) 1 else 0) + (if(right.shields > shields) 1 else 0)
+        copy(redvp = redvp + vp*wins, redlost = redlost-losses)
     }
 
-    def totalvp() = {
-        /* bluevp + */ redvp + gold/3 + {
-            // science  ( _ * _ ) sum
-            + 7*(science._1 min science._2 min science._3)
+    def totalvp(g: GameState): Int = {
+        // cards' worth
+        + cards.map{ _.worth(this, g) }.sum
+        // wonder stages' worth
+        + (wonder.stages take wonderStuffed.length).map{ _.worth(this, g) }.sum
+        // battle wins and losses
+        + redvp + redlost
+        // consolidation prizes
+        + gold/3
+        // science!
+        + {
+            // still looking for a nicer way to do this
+            val l = List(science._1, science._2, science._3)
+            // squares + 7*min
+            l.map( x => x * x ).sum + 7 * (l min)
         }
     }
 
@@ -143,7 +157,7 @@ case class GameState(
     def newage(): GameState = {
         val newCards = Card.newAgeHands(players.length, age+1)
         val newPlayers = (players.tail ::: List(players.head), players, players.head :: players.tail).zipped map {
-            case (left, player, right) => player battle(age, left, right)
+            case (left, player, right) => player battle(this)
         }
 
         GameState(age+1, 7, newPlayers)
