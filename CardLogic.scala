@@ -51,6 +51,9 @@ abstract class Card() {
         // otherwise - can't touch this
         CardUnavailable(this)
     }
+
+    override def toString() = this.getClass.getSimpleName
+
 }
 
 object Card {

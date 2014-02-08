@@ -22,9 +22,12 @@ object Seven extends App {
                 println(s"$i $option")
             }
 
+            val wonderopt = p.wonder.categorize(p, (p lefty state).resources, (p righty state).resources)
+
             // ugly :(
-            var i = readInt
-            options(i) match {
+            val option = options(readInt)
+            // map possible actions
+            val actions: List[Action] = ActionDiscard(option) :: ActionWonder(wonderopt, option) :: (option match {
                 case x: CardAvailable => ActionPick(x)
                 case x @ CardTrade(card, either, left, right) => {
                     println(either)
@@ -33,7 +36,13 @@ object Seven extends App {
                     ActionPickWithTrade(x, left, right)
                 }
                 case x: CardUnavailable => ActionDiscard(x)
+            }) :: Nil
+
+            actions.zipWithIndex foreach { case (option, i) =>
+                println(s"$i $option")
             }
+
+            actions(readInt)
 
         } :: (ps map { _.pickAny })
 

@@ -11,6 +11,41 @@ abstract class Wonder {
     val stagesB: List[WonderStage]
 
     lazy val stages = if(side == 1) stagesA else stagesB
+
+    /** Central method for categorizing if and how a player can play a card.
+     * This is the main place where resource, gold and other requirements for
+     * cards are checked.
+     *
+     * @returns A CardOption instance, which is required to instantiate a
+     * PickAction object, which is the only way a player can play cards.
+     */
+    def categorize(p: PlayerState, left: Resources, right: Resources): WonderOption = {
+        // no stages left - too bad
+        if ( stages.length >= p.wonderStuffed.length )
+            return WonderFullyBuilt()
+
+        val stage = stages(p.wonderStuffed.length)
+
+        // calculate resources we don't have
+        val req = stage.resourceReq - p.allResources
+        // if we have everything - great
+        if(req isEmpty)
+            return WonderFree(stage)
+
+        // check if the required resources minus the potentially available ones is empty
+        if( (req - (left + right)) isEmpty) {
+            val leftOnly = req - right
+            val rightOnly = req - left
+            // TODO the "either" isn't quite right here
+            return WonderTrade(stage, req - leftOnly - rightOnly, leftOnly, rightOnly)
+        }
+
+        // otherwise - can't touch this
+        WonderUnavailable(stage)
+    }
+
+    override def toString() = this.getClass.getSimpleName
+
 }
 
 object Wonder {
@@ -165,3 +200,30 @@ case class GizahBStage4 extends WonderStage {
     override val value = 7
     override val resourceReq = Resources(stone = 4, papyrus = 1)
 }
+
+abstract class WonderOption {
+    val stage: WonderStage
+}
+abstract class WonderAvailable extends WonderOption
+case class WonderFree(stage: WonderStage) extends WonderAvailable {
+    override def toString() = s"${Console.GREEN}+ ${Console.RESET} $stage"
+}
+
+case class WonderTrade(stage: WonderStage, either: Resources, left: Resources, right: Resources) extends WonderOption {
+    override def toString() = s"${Console.YELLOW}+ ${Console.RESET} $stage"
+}
+
+case class WonderInsufficientFunds(stage: WonderStage) extends WonderOption {
+    override def toString() = s"${Console.RED}— ${Console.RESET} $stage"
+}
+
+case class WonderUnavailable(stage: WonderStage) extends WonderOption {
+    override def toString() = s"${Console.RED}— ${Console.RESET} $stage"
+}
+
+case class WonderFullyBuilt() extends WonderOption {
+    // not sure if gusta...
+    override val stage = null
+    override def toString() = s"${Console.RED}— ${Console.RESET} $stage"
+}
+

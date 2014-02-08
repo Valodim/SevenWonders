@@ -6,10 +6,7 @@ abstract class Action {
     def apply(p: PlayerState, g: GameState): (PlayerState, Option[Card], List[(PlayerNumber, Action)])
 }
 
-// case class BuildWonder
-
 // pick a card and play it. may involve trading!
-// TODO make sure all prerequisites are fulfilled
 case class ActionPick(option: CardAvailable) extends Action {
     def apply(p: PlayerState, g: GameState) = (p play(option.card, g), None, Nil)
 }
@@ -37,11 +34,11 @@ case class ActionPickWithTrade(option: CardTrade, left: Resources, right: Resour
     }
 }
 
-case class ActionWonder(option: CardOption) extends Action {
+case class ActionWonder(option: WonderOption, card: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = {
         val stage = p.wonder.stages(p.wonderStuffed.length)
         // todo, resource requirements and boundary checks
-        (stage benefit p.copy(wonderStuffed = option.card :: p.wonderStuffed), None, Nil)
+        (stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, Nil)
     }
 }
 
