@@ -16,12 +16,12 @@ object Seven extends App {
     def pickCards(g: GameState): GameState = {
         val (p, ps) = (g.players.head, g.players.tail)
         val picks = {
-            interactiveAction(p, g)
+            interactiveAction(p, g).get
         } :: (ps map { _.pickAny })
         g.draft(picks)
     }
 
-    def interactiveAction(p: PlayerState, g: GameState): Action = {
+    def interactiveAction(p: PlayerState, g: GameState): Option[Action] = {
 
         // this block must return an Action, which wraps a PlayerOption
         // including all required decisions
@@ -49,24 +49,37 @@ object Seven extends App {
         // further decisions depending on option picked
         option match {
             // if the player picked an available card, just wrap it in an action
-            case x: CardAvailable => ActionPick(x)
+            case x: CardAvailable => Some(ActionPick(x))
             // if trade is needed, get a trade instance as well
-            case x @ CardTrade(card, either, left, right) => {
-                // todo
-                ActionPickWithTrade(x, Trade(0, 0, 0))
+            case x: CardTrade => {
+                interactiveTrade(p, g, x)
             }
             // free wonder - but which card to stuff?
-            case x: WonderFree => ActionWonder(x, cardOptions(0))
+            case x: WonderFree => Some(ActionWonder(x, cardOptions(0)))
             case x @ WonderTrade(stage, either, left, right) => {
-                // todo
-                ActionWonderWithTrade(x, Trade(0, 0, 0), cardOptions(0))
+                None
             }
+            case _ => None
         }
 
     }
 
-    // def interactiveTrade(either: Resources, left: Resources, right: Resources): Trade = {
-        // Trade.offer(either, left, right, 0, 0)
-    // }
+    def interactiveTrade(p: PlayerState, g: GameState, t: CardTrade): Option[Action] = {
+        val (fixedLeft, fixedRight) = t.fixedSums(p)
+        println(s"left: $fixedLeft, ${t.left}\nright: $fixedRight, ${t.right}\neither: ${t.either}\n")
+        if(t.either.isEmpty)
+            Trade(fixedLeft, fixedRight).tradeOffer(p, t)
+        else {
+            val (extraLeft: List[Int], extraRight: List[Int]) = (t.eitherSplit zip t.splitCosts(p)).map{ case (res, (l,r)) =>
+                println(s"Buy $res l($l) / r($r)")
+                readLine  match {
+                    case "l" => (l,0)
+                    case "r" => (0,r)
+                    case _ => return None
+                }
+            }.unzip
+            Trade(fixedLeft + extraLeft.sum, fixedRight + extraRight.sum).tradeOffer(p, t)
+        }
+    }
 
 }

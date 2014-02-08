@@ -71,7 +71,7 @@ case class WonderFree(stage: WonderStage) extends WonderOption {
 }
 
 case class WonderTrade(stage: WonderStage, either: Resources, left: Resources, right: Resources) extends WonderOption with TradeOption {
-    override def toString() = s"${Console.YELLOW}+${Console.RESET} $stage"
+    override def toString() = s"${Console.YELLOW}+${Console.RESET} $stage [e${either.count}+l${left.count}+r${right.count}]"
 }
 
 case class WonderInsufficientFunds(stage: WonderStage) extends WonderOption {

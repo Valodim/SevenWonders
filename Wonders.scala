@@ -69,7 +69,7 @@ case class AlexandriaBStage3 extends WonderStage {
 
 // Rhodos wonder
 case class Rhodos extends Wonder {
-    override val res = Resources(wood = 1)
+    override val res = Resources(ore = 1)
     override val stagesA = List(RhodosAStage1(), RhodosAStage2(), RhodosAStage3())
     override val stagesB = List(RhodosBStage1(), RhodosBStage2())
 }

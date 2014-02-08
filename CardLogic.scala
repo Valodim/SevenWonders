@@ -115,7 +115,7 @@ case class CardChain(card: Card) extends CardAvailable {
 }
 
 case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption with TradeOption {
-    override def toString() = Console.YELLOW + "+ " + Console.RESET + card
+    override def toString() = s"${Console.YELLOW}+${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
 }
 
 case class CardInsufficientFunds(card: Card) extends CardOption {
@@ -127,5 +127,5 @@ case class CardDuplicate(card: Card) extends CardOption {
 }
 
 case class CardUnavailable(card: Card) extends CardOption {
-    override def toString() = Console.RED + "— " + Console.RESET + card
+    override def toString() = s"${Console.RED}—${Console.RESET} $card"
 }

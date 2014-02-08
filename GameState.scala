@@ -37,6 +37,8 @@ case class PlayerState(
 
     // all resources (available to the player)
     lazy val allResources = resources + noTradeResources
+    lazy val costsLeft = List.fill(4)(tradeLeft._1) ::: List.fill(3)(tradeLeft._2)
+    lazy val costsRight = List.fill(4)(tradeRight._1) ::: List.fill(3)(tradeRight._2)
 
     def play(card: Card, g: GameState) = card.benefit(card.pay(copy(hand without card, cards = card :: cards)), g)
     def playForFree(card: Card, g: GameState) = card.benefit(copy(hand without card),g)
@@ -193,6 +195,21 @@ trait TradeOption {
     val either: Resources
     val left: Resources
     val right: Resources
+
+    lazy val eitherSplit = either.split
+
+    def fixedSums(p: PlayerState): (Int, Int) = (
+            (left zip p.costsLeft).map{ case (x,y) => x*y }.sum,
+            (right zip p.costsRight).map{ case (x,y) => x*y }.sum
+        )
+
+    /* returns a list of pairs of costs to purchase each singleton of the
+     * "either" resources from the left and right neighbor
+     */
+    def splitCosts(p: PlayerState): List[(Int, Int)] =
+        eitherSplit.map(x => (x zip p.costsLeft).collect{ case(1,y) => y }.sum) zip
+        eitherSplit.map(x => (x zip p.costsRight).collect{ case(1,y) => y }.sum)
+
 }
 case class OptionDiscard {
     override def toString() = s"${Console.RED}~${Console.RESET} Discard a card"

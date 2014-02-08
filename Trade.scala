@@ -1,37 +1,37 @@
 // must only be instantiated in here! (
-case class Trade(cost: Int, toLeft: Int, toRight: Int)
+case class Trade(toLeft: Int, toRight: Int) {
 
-object Trade {
+    lazy val cost = toLeft + toRight
 
-    def offerCard(p: PlayerState, t: CardTrade): Option[ActionPickWithTrade] = {
-        Some(ActionPickWithTrade(t, Trade(0, 0, 0)))
+    def tradeOffer(p: PlayerState, t: CardTrade): Option[ActionPickWithTrade] = {
+        if(checkOffer(p, t))
+            Some(ActionPickWithTrade(t, this))
+        else
+            None
     }
-    def offerWonder(p: PlayerState, t: WonderTrade): Option[ActionWonderWithTrade] = {
-        None
+    def tradeOffer(p: PlayerState, t: WonderTrade, card: CardOption): Option[ActionWonderWithTrade] = {
+        if(checkOffer(p, t))
+            Some(ActionWonderWithTrade(t, this, card))
+        else
+            None
     }
 
     // checks if an offer to the left and right checks out
-    def checkOffer(p: PlayerState, t: TradeOption, toLeft: Int, toRight: Int): Boolean = {
-
-        val costsLeft = List.fill(p.tradeLeft._1)(4) ::: List.fill(p.tradeLeft._2)(3)
-        val costsRight = List.fill(p.tradeRight._1)(4) ::: List.fill(p.tradeRight._2)(3)
+    def checkOffer(p: PlayerState, t: TradeOption): Boolean = {
 
         // accumulate cost for left-only and right-only resources
-        val restLeft = toLeft - (t.left zip costsLeft).map{ case (x,y) => x*y }.sum
-        val restRight = toRight - (t.right zip costsRight).map{ case (x,y) => x*y }.sum
+        val (costLeft, costRight) = t.fixedSums(p)
+        val (restLeft, restRight) = (toLeft - costLeft, toRight - costRight)
 
         // nothing left? early true, then
         if(restLeft == 0 && restRight == 0 && t.either.isEmpty)
             return true
 
         // check if what's left of our funds works for the "either" resources
-        val splitres = t.either.split
-        val leftright =
-                splitres.map(x => (x zip costsLeft).collectFirst{ case(1,y) => y }) zip
-                splitres.map(x => (x zip costsRight).collectFirst{ case(1,y) => y })
+        val leftright = t.splitCosts(p)
 
         // get a list of all possible left/right combinations
-        val combinations = List.fill(splitres.length)(List(0,1)).flatten combinations(splitres.length)
+        val combinations = List.fill(leftright.length)(List(0,1)).flatten combinations(leftright.length)
 
         // check if any possible combination sums up to (toLeft,toRight)
         combinations map{ combination =>
