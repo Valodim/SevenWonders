@@ -2,12 +2,17 @@ import scala.util.Random
 
 // card types
 abstract class Card() {
+    // basic card attributes
     val goldCost: Int = 0
     val resourceReq: Resources = Resources()
     val chains: List[Card] = List()
 
+    // only includes gold, no check is done here!
     def pay(p: PlayerState): PlayerState = p.copy(gold = p.gold-goldCost)
-    def benefit(p: PlayerState): PlayerState
+    // add instant benfits to player state (excluding vp worth!)
+    def benefit(p: PlayerState, g: GameState): PlayerState = p
+    // worth in vp
+    def worth(p: PlayerState, g: GameState): Int = 0
 
     /** Central method for categorizing if and how a player can play a card.
      * This is the main place where resource, gold and other requirements for

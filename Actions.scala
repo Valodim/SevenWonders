@@ -11,7 +11,7 @@ abstract class Action {
 // pick a card and play it. may involve trading!
 // TODO make sure all prerequisites are fulfilled
 case class ActionPick(option: CardAvailable) extends Action {
-    def apply(p: PlayerState, g: GameState) = (p play option.card, None, Nil)
+    def apply(p: PlayerState, g: GameState) = (p play(option.card, g), None, Nil)
 }
 case class ActionPickWithTrade(option: CardTrade, left: Resources, right: Resources) extends Action {
     def apply(p: PlayerState, g: GameState) = {
@@ -29,7 +29,7 @@ case class ActionPickWithTrade(option: CardTrade, left: Resources, right: Resour
             println(s"error, not enough gold ($costLeft+$costRight+${option.card.goldCost}) - discarding.")
             ActionDiscard(option)(p, g)
         } else {
-            (p.copy(gold = p.gold - costLeft - costRight) play option.card, None, List(
+            (p.copy(gold = p.gold - costLeft - costRight) play(option.card, g), None, List(
                 ( (p.number-1+g.players.length) % g.players.length, TradeMoney(costLeft)),
                 ( (p.number+1) % g.players.length, TradeMoney(costRight))
             ))

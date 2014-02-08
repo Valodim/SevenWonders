@@ -1,19 +1,19 @@
 abstract class BrownCard() extends Card {
     val res: Resources = Resources()
-    def benefit(s: PlayerState) = s.copy(resources = res + s.resources)
+    override def benefit(s: PlayerState, g: GameState) = s.copy(resources = res + s.resources)
 }
 abstract class GreyCard() extends Card {
     val res: Resources
-    def benefit(s: PlayerState) = s.copy(resources = res + s.resources)
+    override def benefit(s: PlayerState, g: GameState) = s.copy(resources = res + s.resources)
 
 }
 abstract class RedCard() extends Card {
     val value: Int
-    def benefit(s: PlayerState) = s.copy(shields = s.shields + value)
+    override def benefit(s: PlayerState, g: GameState) = s.copy(shields = s.shields + value)
 }
 abstract class GreenCard() extends Card {
     val value: (Int,Int,Int)
-    def benefit(s: PlayerState) = s.copy(
+    override def benefit(s: PlayerState, g: GameState) = s.copy(
         science = (
             s.science._1 + value._1,
             s.science._2 + value._2,
@@ -23,12 +23,10 @@ abstract class GreenCard() extends Card {
 }
 abstract class BlueCard() extends Card {
     val value: Int
-    def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + value)
+    override def worth(s: PlayerState, g: GameState) = value
 }
 abstract class YellowCard() extends Card
-abstract class PurpleCard() extends Card {
-    def benefit(s: PlayerState) = s
-}
+abstract class PurpleCard() extends Card
 
 
 // age 1 brown cards
@@ -162,16 +160,16 @@ case class Senat() extends BlueCard {
 
 // age 1 yellow cards
 case class Tavern() extends YellowCard {
-    def benefit(s: PlayerState) = s.copy(gold = s.gold + 5)
+    override def benefit(s: PlayerState, g: GameState) = s.copy(gold = s.gold + 5)
 }
 case class KontorOst() extends YellowCard {
-    def benefit(s: PlayerState) = s.copy(tradeRight = (1, s.tradeRight._2))
+    override def benefit(s: PlayerState, g: GameState) = s.copy(tradeRight = (1, s.tradeRight._2))
 }
 case class KontorWest() extends YellowCard {
-    def benefit(s: PlayerState) = s.copy(tradeLeft = (1, s.tradeRight._2))
+    override def benefit(s: PlayerState, g: GameState) = s.copy(tradeLeft = (1, s.tradeRight._2))
 }
 case class Market() extends YellowCard {
-    def benefit(s: PlayerState) = s.copy(
+    override def benefit(s: PlayerState, g: GameState) = s.copy(
         tradeLeft = (s.tradeRight._1, 1),
         tradeRight = (s.tradeRight._1, 1)
     )
@@ -180,35 +178,35 @@ case class Market() extends YellowCard {
 // age 2 yellow cards
 case class Forum() extends YellowCard {
     override val resourceReq = Resources(clay = 2)
-    def benefit(s: PlayerState) = s.copy(
+    override def benefit(s: PlayerState, g: GameState) = s.copy(
         noTradeResources = s.noTradeResources + Resources.dynamic(cloth = 1, glass = 1, papyrus = 1)
     )
     override val chains = List(Hafen())
 }
 case class Karawanserei() extends YellowCard {
     override val resourceReq = Resources(wood = 2)
-    def benefit(s: PlayerState) = s.copy(
+    override def benefit(s: PlayerState, g: GameState) = s.copy(
         noTradeResources = s.noTradeResources + Resources.dynamic(wood = 1, stone = 1, ore = 1, clay = 1)
     )
     override val chains = List(Leuchtturm())
 }
 case class Weinberg() extends YellowCard {
-    def benefit(s: PlayerState) = s
+    override def benefit(s: PlayerState, g: GameState) = s
 }
 
 // age 3 yellow cards
 
 case class Hafen() extends YellowCard {
     override val resourceReq = Resources(wood = 1, ore = 1, cloth = 1)
-    def benefit(s: PlayerState) = s
+    override def benefit(s: PlayerState, g: GameState) = s
 }
 case class Leuchtturm() extends YellowCard {
     override val resourceReq = Resources(stone = 1, glass = 1)
-    def benefit(s: PlayerState) = s
+    override def benefit(s: PlayerState, g: GameState) = s
 }
 case class Arena() extends YellowCard {
     override val resourceReq = Resources(stone = 2, ore = 1)
-    def benefit(s: PlayerState) = s
+    override def benefit(s: PlayerState, g: GameState) = s
 }
 
 

@@ -22,8 +22,6 @@ case class PlayerState(
     val cards: List[Card] = List(),
     // military power
     val shields: Int = 0,
-    // static victory points for blue cards
-    val bluevp: Int = 0,
     // static vp for military wins
     val redvp: Int = 0,
     // moneys
@@ -38,9 +36,8 @@ case class PlayerState(
     // all resources (available to the player)
     lazy val allResources = resources + noTradeResources
 
-    def +(card: Card) = card benefit copy(cards = card :: cards)
-    def play(card: Card) = card pay copy(hand without card) + card
-    def playForFree(card: Card) = copy(hand without card) + card
+    def play(card: Card, g: GameState) = card.benefit(card.pay(copy(hand without card, cards = card :: cards)), g)
+    def playForFree(card: Card, g: GameState) = card.benefit(copy(hand without card),g)
     def discard(card: Card) = copy(hand without card)
 
     lazy val pickAny = hand.pickAny.categorize(this, Resources(), Resources()) match {
@@ -48,9 +45,12 @@ case class PlayerState(
         case card => ActionDiscard(card)
     }
 
+    def lefty(g: GameState) = g.players( (number-1+g.players.length) % g.players.length)
+    def righty(g: GameState) = g.players( (number+1) % g.players.length)
+
     override def toString = {
         s""" $wonder
-  Stats: $gold Gold, $bluevp blue VP, $shields Shields, $redvp red VP, $science Science
+  Stats: $gold Gold, $shields Shields, $redvp red VP, $science Science
   Cards: ${cards.mkString(",")}
   $resources
   $hand"""
@@ -65,7 +65,7 @@ case class PlayerState(
     }
 
     def totalvp() = {
-        bluevp + redvp + gold/3 + {
+        /* bluevp + */ redvp + gold/3 + {
             // science  ( _ * _ ) sum
             + 7*(science._1 min science._2 min science._3)
         }

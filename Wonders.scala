@@ -24,7 +24,8 @@ abstract class WonderStage {
     val resourceReq: Resources = Resources()
     // most commonly, wonder stages are worth some vp. we use this for a default case
     val value: Int = 0
-    def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + value)
+    def benefit(p: PlayerState) = p
+    def worth(p: PlayerState, g: GameState): Int = value
 }
 
 
@@ -49,15 +50,18 @@ case class EphesosAStage3 extends WonderStage {
 }
 case class EphesosBStage1 extends WonderStage {
     override val resourceReq = Resources(stone = 2)
-    override def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + 2, gold = s.gold + 4)
+    override val value = 2
+    override def benefit(s: PlayerState) = s.copy(gold = s.gold + 4)
 }
 case class EphesosBStage2 extends WonderStage {
     override val resourceReq = Resources(wood = 2)
-    override def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + 3, gold = s.gold + 4)
+    override val value = 3
+    override def benefit(s: PlayerState) = s.copy(gold = s.gold + 4)
 }
 case class EphesosBStage3 extends WonderStage {
     override val resourceReq = Resources(cloth = 1, glass = 1, papyrus = 1)
-    override def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + 5, gold = s.gold + 4)
+    override val value = 5
+    override def benefit(s: PlayerState) = s.copy(gold = s.gold + 4)
 }
 
 
@@ -83,11 +87,13 @@ case class RhodosAStage3 extends WonderStage {
 }
 case class RhodosBStage1 extends WonderStage {
     override val resourceReq = Resources(stone = 3)
-    override def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + 3, gold = s.gold + 3, shields = s.shields + 1)
+    override val value = 3
+    override def benefit(s: PlayerState) = s.copy(gold = s.gold + 3, shields = s.shields + 1)
 }
 case class RhodosBStage2 extends WonderStage {
     override val resourceReq = Resources(ore = 4)
-    override def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + 4, gold = s.gold + 4, shields = s.shields + 1)
+    override val value = 4
+    override def benefit(s: PlayerState) = s.copy(gold = s.gold + 4, shields = s.shields + 1)
 }
 
 
