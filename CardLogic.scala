@@ -82,7 +82,16 @@ object Card {
             Verteidigungsanlage(), Waffenlager(), Belagerungsmaschinen(),
             Loge(), Observatorium(), Universität(), Akademie(), Studierzimmer()
         )
-    }) grouped(7) map(Hand) toList
+    }) ::: (
+        if(age == 3) {
+            List(
+                GuildWorkers(), GuildArtisans(), GuildTraders(), GuildPhilosophy(),
+                GuildSpies(), GuildStrategists(), GuildReeder(), GuildScientists(),
+                GuildOfficials(), GuildBuilders()
+            ) take (players+2)
+        } else
+            Nil
+    ) grouped(7) map(Hand) toList
 }
 
 abstract class CardOption {

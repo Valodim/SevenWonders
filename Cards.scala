@@ -26,7 +26,9 @@ abstract class BlueCard() extends Card {
     def benefit(s: PlayerState) = s.copy(bluevp = s.bluevp + value)
 }
 abstract class YellowCard() extends Card
-abstract class PurpleCard() extends Card
+abstract class PurpleCard() extends Card {
+    def benefit(s: PlayerState) = s
+}
 
 
 // age 1 brown cards
@@ -317,3 +319,35 @@ case class Studierzimmer() extends GreenCard {
     override val value = (0,1,0)
 }
 
+// age 3 purple cards
+
+case class GuildWorkers() extends PurpleCard {
+    override val resourceReq = Resources(ore = 2, clay = 1, stone = 1, wood = 1)
+}
+case class GuildArtisans() extends PurpleCard {
+    override val resourceReq = Resources(ore = 2, stone = 2)
+}
+case class GuildTraders() extends PurpleCard {
+    override val resourceReq = Resources(glass = 1, papyrus = 1, cloth = 1)
+}
+case class GuildPhilosophy() extends PurpleCard {
+    override val resourceReq = Resources(clay = 3, papyrus = 1, cloth = 1)
+}
+case class GuildSpies() extends PurpleCard {
+    override val resourceReq = Resources(clay = 3, glass = 1)
+}
+case class GuildStrategists() extends PurpleCard {
+    override val resourceReq = Resources(ore = 2, stone = 1, cloth = 1)
+}
+case class GuildReeder() extends PurpleCard {
+    override val resourceReq = Resources(wood = 3, glass = 1, papyrus = 1)
+}
+case class GuildScientists() extends PurpleCard {
+    override val resourceReq = Resources(wood = 2, ore = 2, papyrus = 1)
+}
+case class GuildOfficials() extends PurpleCard {
+    override val resourceReq = Resources(wood = 3, stone = 1, cloth = 1)
+}
+case class GuildBuilders() extends PurpleCard {
+    override val resourceReq = Resources(stone = 2, clay = 2, glass = 1)
+}
