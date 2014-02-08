@@ -14,7 +14,7 @@ abstract class Wonder {
 }
 
 object Wonder {
-    val wonders = List( Rhodos(), Ephesos(), /* Alexandria(), Babylon(), Olympia(), Halikarnassos(), */ Gizah() )
+    val wonders = List( Rhodos(), Ephesos(), Alexandria(), /* Babylon(), Olympia(), Halikarnassos(), */ Gizah() )
 
     def newGameWonders(): List[Wonder] = Random.shuffle(wonders)
 }
@@ -62,6 +62,39 @@ case class EphesosBStage3 extends WonderStage {
     override val resourceReq = Resources(cloth = 1, glass = 1, papyrus = 1)
     override val value = 5
     override def benefit(s: PlayerState) = s.copy(gold = s.gold + 4)
+}
+
+
+// Alexandria Wonder
+case class Alexandria extends Wonder {
+    override val res = Resources(glass = 1)
+    override val stagesA = List(AlexandriaAStage1(), AlexandriaAStage2(), AlexandriaAStage3())
+    override val stagesB = List(AlexandriaBStage1(), AlexandriaBStage2(), AlexandriaBStage3())
+}
+
+case class AlexandriaAStage1 extends WonderStage {
+    override val value = 3
+    override val resourceReq = Resources(stone = 2)
+}
+case class AlexandriaAStage2 extends WonderStage {
+    override val resourceReq = Resources(ore = 2)
+    override def benefit(p: PlayerState) = p addNoTradeResources Resources.dynamic(wood = 1, stone = 1, clay = 1, ore = 1)
+}
+case class AlexandriaAStage3 extends WonderStage {
+    override val value = 7
+    override val resourceReq = Resources(glass = 2)
+}
+case class AlexandriaBStage1 extends WonderStage {
+    override val resourceReq = Resources(clay = 2)
+    override def benefit(p: PlayerState) = p addNoTradeResources Resources.dynamic(wood = 1, stone = 1, clay = 1, ore = 1)
+}
+case class AlexandriaBStage2 extends WonderStage {
+    override val resourceReq = Resources(wood = 2)
+    override def benefit(p: PlayerState) = p addNoTradeResources Resources.dynamic(papyrus = 1, glass = 1, cloth = 1)
+}
+case class AlexandriaBStage3 extends WonderStage {
+    override val resourceReq = Resources(stone = 3)
+    override val value = 7
 }
 
 

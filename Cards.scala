@@ -1,12 +1,9 @@
-abstract class BrownCard() extends Card {
-    val res: Resources = Resources()
-    override def benefit(p: PlayerState, g: GameState) = p.copy(resources = res + p.resources)
-}
-abstract class GreyCard() extends Card {
+abstract class BrownOrGreyCard extends Card {
     val res: Resources
-    override def benefit(p: PlayerState, g: GameState) = p.copy(resources = res + p.resources)
-
+    override def benefit(p: PlayerState, g: GameState) = p addResources res
 }
+abstract class BrownCard() extends BrownOrGreyCard
+abstract class GreyCard() extends BrownOrGreyCard
 abstract class RedCard() extends Card {
     val value: Int
     override def benefit(p: PlayerState, g: GameState) = p.copy(shields = p.shields + value)
@@ -177,16 +174,12 @@ case class Market() extends YellowCard {
 // age 2 yellow cards
 case class Forum() extends YellowCard {
     override val resourceReq = Resources(clay = 2)
-    override def benefit(p: PlayerState, g: GameState) = p.copy(
-        noTradeResources = p.noTradeResources + Resources.dynamic(cloth = 1, glass = 1, papyrus = 1)
-    )
+    override def benefit(p: PlayerState, g: GameState) = p addNoTradeResources Resources.dynamic(cloth = 1, glass = 1, papyrus = 1)
     override val chains = List(Hafen())
 }
 case class Karawanserei() extends YellowCard {
     override val resourceReq = Resources(wood = 2)
-    override def benefit(p: PlayerState, g: GameState) = p.copy(
-        noTradeResources = p.noTradeResources + Resources.dynamic(wood = 1, stone = 1, ore = 1, clay = 1)
-    )
+    override def benefit(p: PlayerState, g: GameState) = p addNoTradeResources Resources.dynamic(wood = 1, stone = 1, ore = 1, clay = 1)
     override val chains = List(Leuchtturm())
 }
 case class Weinberg() extends YellowCard {
@@ -347,7 +340,7 @@ case class GuildStrategists() extends PurpleCard {
 }
 case class GuildReeder() extends PurpleCard {
     override val resourceReq = Resources(wood = 3, glass = 1, papyrus = 1)
-    override def worth(p: PlayerState, g: GameState) = p count(x => x.isInstanceOf[BrownCard] || x.isInstanceOf[GreyCard] || x.isInstanceOf[PurpleCard])
+    override def worth(p: PlayerState, g: GameState) = p count(x => x.isInstanceOf[BrownOrGreyCard] || x.isInstanceOf[PurpleCard])
 }
 case class GuildScientists() extends PurpleCard {
     override val resourceReq = Resources(wood = 2, ore = 2, papyrus = 1)

@@ -43,6 +43,8 @@ case class PlayerState(
     def discard(card: Card) = copy(hand without card)
 
     def addGold(amount: Int) = copy(gold = gold+amount)
+    def addNoTradeResources(r: Resources) = copy(noTradeResources = noTradeResources+r)
+    def addResources(r: Resources) = copy(resources = resources+r)
 
     lazy val pickAny = hand.pickAny.categorize(this, Resources(), Resources()) match {
         case card: CardAvailable => ActionPick(card)
