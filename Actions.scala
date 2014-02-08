@@ -37,6 +37,14 @@ case class ActionPickWithTrade(option: CardTrade, left: Resources, right: Resour
     }
 }
 
+case class ActionWonder(option: CardOption) extends Action {
+    def apply(p: PlayerState, g: GameState) = {
+        val stage = p.wonder.stages(p.wonderStuffed.length)
+        // todo, resource requirements and boundary checks
+        (stage benefit p.copy(wonderStuffed = option.card :: p.wonderStuffed), None, Nil)
+    }
+}
+
 // discard a card
 case class ActionDiscard(option: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = (p.copy(gold = p.gold + 3) discard option.card, Some(option.card), Nil)

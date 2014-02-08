@@ -8,14 +8,18 @@ object PlayerState {
 case class PlayerState(
     // player's current hand
     val hand: Hand,
+    // so many wonders~
+    val wonder: Wonder,
     // player number
     val number: PlayerNumber,
-    // player's (played) cards
-    val cards: List[Card] = List(),
-    // fixed resources
-    val resources: Resources = Resources(),
+    // fixed resources (starts with wonder resources)
+    val resources: Resources,
     // fixed, untradable resources
     val noTradeResources: Resources = Resources(),
+    // current wonder stage
+    val wonderStuffed: List[Card] = List(),
+    // player's (played) cards
+    val cards: List[Card] = List(),
     // military power
     val shields: Int = 0,
     // static victory points for blue cards
@@ -45,7 +49,7 @@ case class PlayerState(
     }
 
     override def toString = {
-        s"""
+        s""" $wonder
   Stats: $gold Gold, $bluevp blue VP, $shields Shields, $redvp red VP, $science Science
   Cards: ${cards.mkString(",")}
   $resources
@@ -154,6 +158,11 @@ $pstr
 
 object GameState {
     def newGame(): GameState = {
-        GameState(players = Card.newAgeHands(3, 1).zipWithIndex map { case (hand, i) => PlayerState(hand, i, gold = 3) })
+
+        val wonders = Wonder.newGameWonders.take(3)
+        val hands = Card.newAgeHands(3, 1)
+
+        GameState(players = (wonders zip hands).zipWithIndex map { case ((wonder, hand), i) => PlayerState(hand, wonder, i, wonder.res, gold = 3) })
+
     }
 }

@@ -28,9 +28,11 @@ abstract class Card() {
             return CardFree(this)
 
         // check if the required resources minus the potentially available ones is empty
-        if( (req - left - right) isEmpty) {
-            val either = req & left & right
-            return CardTrade(this, either, (req & right) - either, (req & left) - either)
+        if( (req - (left + right)) isEmpty) {
+            val leftOnly = req - right
+            val rightOnly = req - left
+            // TODO the "either" isn't quite right here
+            return CardTrade(this, req - leftOnly - rightOnly, leftOnly, rightOnly)
         }
 
         // otherwise - can't touch this
