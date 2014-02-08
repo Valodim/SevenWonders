@@ -1,3 +1,4 @@
+import scala.util.control._
 
 object Seven extends App {
 
@@ -15,10 +16,14 @@ object Seven extends App {
 
     def pickCards(g: GameState): GameState = {
         val (p, ps) = (g.players.head, g.players.tail)
-        val picks = {
-            interactiveAction(p, g).get
+        val actions = {
+            var action: Option[Action] = None
+            // do {
+                action = interactiveAction(p, g)
+            // } while(action.isEmpty)
+            action.get
         } :: (ps map { _.pickAny })
-        g.draft(picks)
+        g.draft(actions)
     }
 
     def interactiveAction(p: PlayerState, g: GameState): Option[Action] = {
@@ -43,42 +48,47 @@ object Seven extends App {
             println(s"$i $option")
         }
 
-        // todo~
-        val option = options(readInt)
+        // read an int and look up value in options. None on numberformat or out of bounds
+        val option: Option[PlayerOption] = Exception.catching(classOf[NumberFormatException]).opt {readInt} flatMap options.lift
 
-        // further decisions depending on option picked
-        option match {
+        // further decisions depending on option picked (or None)
+        option flatMap {
             // if the player picked an available card, just wrap it in an action
             case x: CardAvailable => Some(ActionPick(x))
             // if trade is needed, get a trade instance as well
-            case x: CardTrade => {
-                interactiveTrade(p, g, x)
+            case t: CardTrade => interactiveTrade(p, g, t) flatMap ( _.tradeOffer(p, t) )
+            // it's a wonder - but which card to stuff?
+            case x: WonderOption => {
+                // display cards that can be stuffed
+                cardOptions.zipWithIndex foreach { case (option, i) =>
+                    println(s"$i $option")
+                }
+                // stuff it
+                val stuff = cardOptions(readInt)
+                x match {
+                    case x: WonderFree => Some(ActionWonder(x, stuff))
+                    case t: WonderTrade => interactiveTrade(p, g, t) flatMap ( _.tradeOffer(p, t, stuff) )
+                }
             }
-            // free wonder - but which card to stuff?
-            case x: WonderFree => Some(ActionWonder(x, cardOptions(0)))
-            case x @ WonderTrade(stage, either, left, right) => {
-                None
-            }
-            case _ => None
         }
 
     }
 
-    def interactiveTrade(p: PlayerState, g: GameState, t: CardTrade): Option[Action] = {
+    def interactiveTrade(p: PlayerState, g: GameState, t: TradeOption): Option[Trade] = {
         val (fixedLeft, fixedRight) = t.fixedSums(p)
         println(s"left: $fixedLeft, ${t.left}\nright: $fixedRight, ${t.right}\neither: ${t.either}\n")
         if(t.either.isEmpty)
-            Trade(fixedLeft, fixedRight).tradeOffer(p, t)
+            Some(Trade(fixedLeft, fixedRight))
         else {
             val (extraLeft: List[Int], extraRight: List[Int]) = (t.eitherSplit zip t.splitCosts(p)).map{ case (res, (l,r)) =>
                 println(s"Buy $res l($l) / r($r)")
-                readLine  match {
+                readLine match {
                     case "l" => (l,0)
                     case "r" => (0,r)
                     case _ => return None
                 }
             }.unzip
-            Trade(fixedLeft + extraLeft.sum, fixedRight + extraRight.sum).tradeOffer(p, t)
+            Some(Trade(fixedLeft + extraLeft.sum, fixedRight + extraRight.sum))
         }
     }
 

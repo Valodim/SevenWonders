@@ -211,6 +211,6 @@ trait TradeOption {
         eitherSplit.map(x => (x zip p.costsRight).collect{ case(1,y) => y }.sum)
 
 }
-case class OptionDiscard {
+case class OptionDiscard extends PlayerOption {
     override def toString() = s"${Console.RED}~${Console.RESET} Discard a card"
 }
