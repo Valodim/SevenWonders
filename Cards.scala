@@ -355,6 +355,7 @@ case class GuildReeder() extends PurpleCard {
 }
 case class GuildScientists() extends PurpleCard {
     override val resourceReq = Resources(wood = 2, ore = 2, papyrus = 1)
+    override def benefit(p: PlayerState, g: GameState) = p.copy(scienceWildCard = p.scienceWildCard+1)
 }
 case class GuildOfficials() extends PurpleCard {
     override val resourceReq = Resources(wood = 3, stone = 1, cloth = 1)

@@ -1,3 +1,106 @@
+// Halikarnassos Wonder
+case class Halikarnassos extends Wonder {
+    override val res = Resources(cloth = 1)
+    override val stagesA = List(HalikarnassosAStage1(), HalikarnassosAStage2(), HalikarnassosAStage3())
+    override val stagesB = List(HalikarnassosBStage1(), HalikarnassosBStage2(), HalikarnassosBStage3())
+}
+
+case class HalikarnassosAStage1 extends WonderStage {
+    override val value = 3
+    override val resourceReq = Resources(clay = 2)
+}
+case class HalikarnassosAStage2 extends WonderStage {
+    override val resourceReq = Resources(ore = 3)
+    // tood: discard pile pick
+}
+case class HalikarnassosAStage3 extends WonderStage {
+    override val value = 7
+    override val resourceReq = Resources(cloth = 2)
+}
+case class HalikarnassosBStage1 extends WonderStage {
+    override val value = 2
+    override val resourceReq = Resources(ore = 2)
+    // todo: discard pile pick
+}
+case class HalikarnassosBStage2 extends WonderStage {
+    override val value = 1
+    override val resourceReq = Resources(clay = 3)
+    // todo: discard pile pick
+}
+case class HalikarnassosBStage3 extends WonderStage {
+    override val resourceReq = Resources(glass = 1, papyrus = 1, cloth = 1)
+    // todo: discard pile pick
+}
+
+
+// Olympia Wonder
+case class Olympia extends Wonder {
+    override val res = Resources(wood = 1)
+    override val stagesA = List(OlympiaAStage1(), OlympiaAStage2(), OlympiaAStage3())
+    override val stagesB = List(OlympiaBStage1(), OlympiaBStage2(), OlympiaBStage3())
+}
+
+case class OlympiaAStage1 extends WonderStage {
+    override val value = 3
+    override val resourceReq = Resources(wood = 2)
+}
+case class OlympiaAStage2 extends WonderStage {
+    override val resourceReq = Resources(stone = 2)
+    // tood: free build
+}
+case class OlympiaAStage3 extends WonderStage {
+    override val value = 7
+    override val resourceReq = Resources(ore = 2)
+}
+case class OlympiaBStage1 extends WonderStage {
+    override val resourceReq = Resources(wood = 2)
+    override def benefit(p: PlayerState) = p.copy(
+        tradeLeft = (1, p.tradeRight._2),
+        tradeRight = (1, p.tradeRight._2)
+    )
+}
+case class OlympiaBStage2 extends WonderStage {
+    override val value = 5
+    override val resourceReq = Resources(stone = 2)
+}
+case class OlympiaBStage3 extends WonderStage {
+    override val resourceReq = Resources(ore = 2, cloth = 1)
+    // todo: copy guild
+}
+
+
+// Babylon Wonder
+case class Babylon extends Wonder {
+    override val res = Resources(clay = 1)
+    override val stagesA = List(BabylonAStage1(), BabylonAStage2(), BabylonAStage3())
+    override val stagesB = List(BabylonBStage1(), BabylonBStage2(), BabylonBStage3())
+}
+
+case class BabylonAStage1 extends WonderStage {
+    override val value = 3
+    override val resourceReq = Resources(clay = 2)
+}
+case class BabylonAStage2 extends WonderStage {
+    override val resourceReq = Resources(wood = 3)
+    override def benefit(s: PlayerState) = s.copy(scienceWildCard = s.scienceWildCard + 1)
+}
+case class BabylonAStage3 extends WonderStage {
+    override val value = 7
+    override val resourceReq = Resources(clay = 4)
+}
+case class BabylonBStage1 extends WonderStage {
+    override val value = 3
+    override val resourceReq = Resources(clay = 1, cloth = 1)
+}
+case class BabylonBStage2 extends WonderStage {
+    override val resourceReq = Resources(wood = 2, glass = 1)
+    // todo: extra action
+}
+case class BabylonBStage3 extends WonderStage {
+    override val resourceReq = Resources(clay = 3, papyrus = 1)
+    override def benefit(s: PlayerState) = s.copy(scienceWildCard = s.scienceWildCard + 1)
+}
+
 // Ephesos Wonder
 case class Ephesos extends Wonder {
     override val res = Resources(papyrus = 1)

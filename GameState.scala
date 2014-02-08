@@ -32,7 +32,8 @@ case class PlayerState(
     val tradeLeft: (Int, Int) = (2, 2),
     val tradeRight: (Int, Int) = (2, 2),
     // science, bitch! wheel, circledrawthingie, tablet
-    val science: (Int, Int, Int) = (0, 0, 0)
+    val science: (Int, Int, Int) = (0, 0, 0),
+    val scienceWildCard: Int = 0
 ) {
 
     lazy val name = s"Player ${number+1}"
@@ -63,7 +64,7 @@ case class PlayerState(
 
     override def toString = {
         s""" $wonder
-  Stats: $gold Gold, $shields Shields, $redvp red VP, $redlost red -VP, $science Science
+  Stats: $gold Gold, $shields Shields, $redvp red VP, $redlost red -VP, $science + $scienceWildCard Science 
   Trade cost: l$tradeLeft r$tradeRight, ${wonderStuffed.length} cards stuffed
   Cards: ${cards.mkString(", ")}
   $resources"""

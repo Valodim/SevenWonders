@@ -57,7 +57,7 @@ abstract class Wonder {
 }
 
 object Wonder {
-    val wonders = List( Rhodos(), Ephesos(), Alexandria(), /* Babylon(), Olympia(), Halikarnassos(), */ Gizah() )
+    val wonders = List( Rhodos(), Ephesos(), Alexandria(), Babylon(), Olympia(), Halikarnassos(), Gizah() )
 
     def newGameWonders(): List[Wonder] = Random.shuffle(wonders)
 }
