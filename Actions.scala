@@ -15,8 +15,9 @@ import PlayerState.PlayerNumber
 abstract class Action {
     // applies this action to one player of the game state
     // returns new player state, a possibly discarded card
-    def apply(p: PlayerState, g: GameState): (PlayerState, Option[Card], List[(PlayerNumber, Action)])
+    def apply(p: PlayerState, g: GameState): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)])
 }
+abstract class LateAction extends Action
 
 // pick a card to play. no resource checks are made here, since CardAvailable
 // instances always represent cards which require no additional resources.
@@ -38,9 +39,16 @@ case class ActionPickWithTrade(option: CardTrade, trade: TradeCard) extends Acti
 // resources.
 case class ActionWonder(option: WonderFree, card: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = {
-        val stage = p.wonder.stages(p.wonderStuffed.length)
         // todo, resource requirements and boundary checks
-        (stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, Nil)
+        (option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, Nil)
+    }
+}
+case class ActionWonderWithTrade(option: WonderTrade, trade: TradeWonder, card: CardOption) extends Action {
+    def apply(p: PlayerState, g: GameState) = {
+        (option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, List(
+            ( (p.number-1+g.players.length) % g.players.length, TradeMoney(trade.toLeft)),
+            ( (p.number+1) % g.players.length, TradeMoney(trade.toRight))
+        ))
     }
 }
 
@@ -49,6 +57,6 @@ case class ActionDiscard(option: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = (p addGold(3) discard(option.card), Some(option.card), Nil)
 }
 
-case class TradeMoney(amount: Int) extends Action {
+case class TradeMoney(amount: Int) extends LateAction {
     def apply(p: PlayerState, g: GameState) = (p addGold(amount), None, Nil)
 }

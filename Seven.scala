@@ -13,51 +13,56 @@ object Seven extends App {
         }
     }
 
-    def pickCards(state: GameState): GameState = {
-        val (p, ps) = (state.players.head, state.players.tail)
+    def pickCards(g: GameState): GameState = {
+        val (p, ps) = (g.players.head, g.players.tail)
         val picks = {
-
-            // this block must return an Action, which wraps a PlayerOption
-            // including all required decisions
-
-            // all options available to the player (including unavailable ones!)
-            val options =
-                // you can always discard
-                OptionDiscard() ::
-                // build a wonder stage, possibly
-                p.wonder.categorize(p, (p lefty state).resources, (p righty state).resources) ::
-                // or pick a card
-                p.hand.options(p, ps.last, ps.head)
-
-            options.zipWithIndex foreach { case (option, i) =>
-                println(s"$i $option")
-            }
-
-            // todo~
-            val option = options(readInt)
-
-            // map possible actions
-            val actions: List[Action] = (option match {
-                case x: CardAvailable => ActionPick(x)
-                case x @ CardTrade(card, either, left, right) => {
-                    println(either)
-                    println(left)
-                    println(right)
-                    // ActionPickWithTrade(x, left, right)
-                    ActionDiscard(x)
-                }
-                case x: CardUnavailable => ActionDiscard(x)
-            }) :: Nil
-
-            actions.zipWithIndex foreach { case (option, i) =>
-                println(s"$i $option")
-            }
-
-            actions(readInt)
-
+            interactiveAction(p, g)
         } :: (ps map { _.pickAny })
+        g.draft(picks)
+    }
 
-        state.draft(picks)
+    def interactiveAction(p: PlayerState, g: GameState): Action = {
+
+        // this block must return an Action, which wraps a PlayerOption
+        // including all required decisions
+
+        val lefty = p lefty g
+        val righty = p righty g
+
+        // all options available to the player (including unavailable ones!)
+        val cardOptions = p.hand.options(p, lefty, righty)
+        val options =
+            // you can always discard
+            OptionDiscard() ::
+            // build a wonder stage, possibly
+            p.wonder.categorize(p, lefty.resources, righty.resources) ::
+            // or any card option
+            cardOptions
+
+        options.zipWithIndex foreach { case (option, i) =>
+            println(s"$i $option")
+        }
+
+        // todo~
+        val option = options(readInt)
+
+        // further decisions depending on option picked
+        option match {
+            // if the player picked an available card, just wrap it in an action
+            case x: CardAvailable => ActionPick(x)
+            // if trade is needed, get a trade instance as well
+            case x @ CardTrade(card, either, left, right) => {
+                // todo
+                ActionPickWithTrade(x, TradeCard(x, 0, 0, 0))
+            }
+            // free wonder - but which card to stuff?
+            case x: WonderFree => ActionWonder(x, cardOptions(0))
+            case x @ WonderTrade(stage, either, left, right) => {
+                // todo
+                ActionWonderWithTrade(x, TradeWonder(x, 0, 0, 0), cardOptions(0))
+            }
+        }
+
     }
 
 }
