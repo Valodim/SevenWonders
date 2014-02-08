@@ -65,7 +65,7 @@ case class PlayerState(
         s""" $wonder
   Stats: $gold Gold, $shields Shields, $redvp red VP, $redlost red -VP, $science Science
   Trade cost: l$tradeLeft r$tradeRight, ${wonderStuffed.length} cards stuffed
-  Cards: ${cards.mkString(",")}
+  Cards: ${cards.mkString(", ")}
   $resources"""
     }
 
@@ -295,5 +295,5 @@ trait TradeOption {
 
 }
 case class OptionDiscard extends PlayerOption {
-    override def toString() = s"${Console.RED}~${Console.RESET} Discard a card"
+    override def toString() = s"${Console.RED}~${Console.RESET} [Discard a card]"
 }

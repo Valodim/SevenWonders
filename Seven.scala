@@ -1,6 +1,14 @@
 import scala.util.control._
 
-object Seven extends App {
+object SevenCli extends App {
+
+    val brown = "\033[38;5;136m"
+    val yellow = "\033[38;5;185m"
+    val red = "\033[38;5;166m"
+    val green = "\033[38;5;112m"
+    val purple = "\033[38;5;129m"
+    val blue = "\033[38;5;33m"
+    val grey = "\033[38;5;241m"
 
     // initial game state
     var g = GameState.newGame
