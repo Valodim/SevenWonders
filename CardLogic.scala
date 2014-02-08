@@ -9,11 +9,19 @@ abstract class Card() {
     def pay(p: PlayerState): PlayerState = p.copy(gold = p.gold-goldCost)
     def benefit(p: PlayerState): PlayerState
 
+    /** Central method for categorizing if and how a player can play a card.
+     * This is the main place where resource, gold and other requirements for
+     * cards are checked.
+     *
+     * @returns A CardOption instance, which is required to instantiate a
+     * PickAction object, which is the only way a player can play cards.
+     */
     def categorize(p: PlayerState, left: Resources, right: Resources): CardOption = {
+        // we cannot ever play duplicate cards!
         if ( p.cards contains this )
             return CardDuplicate(this)
 
-        // can we chain-build this?
+        // can we chain-build this? no resource required in that case
         if ( p.cards.map( _.chains ).flatten contains this )
             return CardChain(this)
 
@@ -67,6 +75,12 @@ object Card {
             Forum(), Karawanserei(), Weinberg(),
             Mauern(), Ställe(), Schiessplatz(),
             Arzneiausgabe(), Laboratorium(), Bibliothek(), Schule()
+        )
+        case (3,3) => List(
+            Pantheon(), Gärten(), Rathaus(), Palast(), Senat(),
+            Hafen(), Leuchtturm(), Arena(),
+            Verteidigungsanlage(), Waffenlager(), Belagerungsmaschinen(),
+            Loge(), Observatorium(), Universität(), Akademie(), Studierzimmer()
         )
     }) grouped(7) map(Hand) toList
 }

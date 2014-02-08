@@ -122,15 +122,41 @@ case class Aquädukt() extends BlueCard {
 case class Tempel() extends BlueCard {
     override val value = 3
     override val resourceReq = Resources(wood = 1, clay = 1, glass = 1)
+    override val chains = List(Pantheon())
 }
 case class Statue() extends BlueCard {
     override val value = 4
     override val resourceReq = Resources(ore = 2, wood = 1)
+    override val chains = List(Gärten())
 }
 case class Gericht() extends BlueCard {
     override val value = 4
     override val resourceReq = Resources(clay = 2, cloth = 1)
 }
+
+// age 3 blue cards
+case class Pantheon() extends BlueCard {
+    override val value = 7
+    override val resourceReq = Resources(clay = 2, ore = 1, glass = 1, papyrus = 1, cloth = 1)
+}
+case class Gärten() extends BlueCard {
+    override val value = 5
+    override val resourceReq = Resources(clay = 2, wood = 1)
+}
+case class Rathaus() extends BlueCard {
+    override val value = 6
+    override val resourceReq = Resources(stone = 2, ore = 1, glass = 1)
+}
+case class Palast() extends BlueCard {
+    override val value = 8
+    override val resourceReq = Resources(wood = 1, stone = 1, clay = 1, ore = 1, glass = 1, papyrus = 1, cloth = 1)
+}
+case class Senat() extends BlueCard {
+    override val value = 6
+    override val resourceReq = Resources(wood = 2, stone = 1, ore = 1)
+}
+
+
 
 // age 1 yellow cards
 case class Tavern() extends YellowCard {
@@ -155,14 +181,31 @@ case class Forum() extends YellowCard {
     def benefit(s: PlayerState) = s.copy(
         noTradeResources = s.noTradeResources + Resources.dynamic(cloth = 1, glass = 1, papyrus = 1)
     )
+    override val chains = List(Hafen())
 }
 case class Karawanserei() extends YellowCard {
     override val resourceReq = Resources(wood = 2)
     def benefit(s: PlayerState) = s.copy(
         noTradeResources = s.noTradeResources + Resources.dynamic(wood = 1, stone = 1, ore = 1, clay = 1)
     )
+    override val chains = List(Leuchtturm())
 }
 case class Weinberg() extends YellowCard {
+    def benefit(s: PlayerState) = s
+}
+
+// age 3 yellow cards
+
+case class Hafen() extends YellowCard {
+    override val resourceReq = Resources(wood = 1, ore = 1, cloth = 1)
+    def benefit(s: PlayerState) = s
+}
+case class Leuchtturm() extends YellowCard {
+    override val resourceReq = Resources(stone = 1, glass = 1)
+    def benefit(s: PlayerState) = s
+}
+case class Arena() extends YellowCard {
+    override val resourceReq = Resources(stone = 2, ore = 1)
     def benefit(s: PlayerState) = s
 }
 
@@ -185,6 +228,7 @@ case class Wachturm() extends RedCard {
 case class Mauern() extends RedCard {
     override val value = 2
     override val resourceReq = Resources(stone = 3)
+    override val chains = List(Verteidigungsanlage())
 }
 case class Ställe() extends RedCard {
     override val value = 2
@@ -194,6 +238,22 @@ case class Schiessplatz() extends RedCard {
     override val value = 2
     override val resourceReq = Resources(wood = 2, ore = 1)
 }
+
+// age 3 red cards
+case class Verteidigungsanlage() extends RedCard {
+    override val value = 3
+    override val resourceReq = Resources(stone = 1, ore = 3)
+}
+case class Waffenlager() extends RedCard {
+    override val value = 3
+    override val resourceReq = Resources(wood = 2, ore = 1, cloth = 1)
+}
+case class Belagerungsmaschinen() extends RedCard {
+    override val value = 3
+    override val resourceReq = Resources(clay = 3, wood = 1)
+}
+
+
 
 // age 1 green cards
 case class Apothecary() extends GreenCard {
@@ -216,17 +276,44 @@ case class Skriptorium() extends GreenCard {
 case class Arzneiausgabe() extends GreenCard {
     override val resourceReq = Resources(ore = 2, glass = 1)
     override val value = (1,0,0)
+    override val chains = List(Loge(), Arena())
 }
 case class Laboratorium() extends GreenCard {
     override val resourceReq = Resources(clay = 2, papyrus = 1)
     override val value = (0,1,0)
+    override val chains = List(Belagerungsmaschinen(), Observatorium())
 }
 case class Bibliothek() extends GreenCard {
     override val resourceReq = Resources(stone = 2, cloth = 1)
     override val value = (0,0,1)
+    override val chains = List(Senat(), Universität())
 }
 case class Schule() extends GreenCard {
     override val resourceReq = Resources(wood = 1, papyrus = 1)
     override val value = (0,0,1)
+    override val chains = List(Akademie(), Studierzimmer())
+}
+
+// age 3 green cards
+case class Loge() extends GreenCard {
+    override val resourceReq = Resources(clay = 2, papyrus = 1, cloth = 1)
+    override val value = (1,0,0)
+}
+case class Observatorium() extends GreenCard {
+    override val resourceReq = Resources(ore = 2, glass = 1, cloth = 1)
+    override val value = (0,1,0)
+}
+case class Universität() extends GreenCard {
+    override val resourceReq = Resources(wood = 2, papyrus = 1, glass = 1)
+    override val value = (0,0,1)
+    override val chains = List(Senat())
+}
+case class Akademie() extends GreenCard {
+    override val resourceReq = Resources(stone = 3, glass = 1)
+    override val value = (1,0,0)
+}
+case class Studierzimmer() extends GreenCard {
+    override val resourceReq = Resources(wood = 1, papyrus = 1, cloth = 1)
+    override val value = (0,1,0)
 }
 
