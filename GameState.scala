@@ -51,7 +51,7 @@ case class PlayerState(
     def addResources(r: Resources) = copy(resources = resources+r)
 
     lazy val pickAny = hand.pickAny.categorize(this, Resources(), Resources()) match {
-        case card: CardAvailable => ActionPick(card)
+        case card: CardFree => ActionPick(card)
         case card => ActionDiscard(card)
     }
 
@@ -81,15 +81,15 @@ case class PlayerState(
 
     def totalvp(g: GameState): Int = {
         // cards' worth
-        + cards.map{ _.worth(this, g) }.sum
+        cards.map{ _.worth(this, g) }.sum +
         // wonder stages' worth
-        + (wonder.stages take wonderStuffed.length).map{ _.worth(this, g) }.sum
+        (wonder.stages take wonderStuffed.length).map{ _.worth(this, g) }.sum +
         // battle wins and losses
-        + redvp + redlost
+        redvp + redlost +
         // consolidation prizes
-        + gold/3
+        (gold/3) +
         // science!
-        + {
+        {
             // still looking for a nicer way to do this
             val l = List(science._1, science._2, science._3)
             // squares + 7*min
@@ -162,10 +162,10 @@ case class GameState(
         }
 
         // if this is a new age, handle this in another method
-        if(cardsLeft == 2)
+        if(cardsLeft == 2) {
             newAge(playersPrime2, newDiscards)
         // otherwise, just apply the new values
-        else
+        } else
             copy(
                 cardsLeft = cardsLeft-1,
                 players = if(age % 2 == 0) afterDraftLeft else afterDraftRight,
@@ -176,9 +176,11 @@ case class GameState(
 
     def newAge(playersPrime2: List[PlayerState], newDiscards: List[Card]): GameState = {
         // Do battle!
-        val playersPrime3 = (playersPrime2.tail ::: List(playersPrime2.head), playersPrime2, playersPrime2.head :: playersPrime2.tail).zipped map {
-            case (left, player, right) => player battle(this)
-        }
+        val playersPrime3 = playersPrime2 map { _.battle(this) }
+
+        // this is it?
+        if(age == 3)
+            return endOfGame(playersPrime3, newDiscards)
 
         // Hand out a shiny new set of cards
         val playersPrime4 = playersPrime3 zip Card.newAgeHands(players.length, age+1) map {
@@ -189,14 +191,23 @@ case class GameState(
         GameState(age+1, 7, playersPrime4, discardPile = newDiscards)
     }
 
+    def endOfGame(playersPrime3: List[PlayerState], newDiscards: List[Card]) = {
+        // It's a brand new day!
+        val eog = GameState(0, 0, playersPrime3, discardPile = newDiscards)
+        println(eog)
+        eog.players.foreach {
+            p => println(s"${p.name} achieved ${p.totalvp(eog)} VP!")
+        }
+        eog
+    }
+
     override def toString = {
         val pstr = players.zipWithIndex map { case (p, i) => s"Player ${i+1}:" + p.toString + "\n" } mkString
 
 s"""\n-- Seven State --
-Age: $age, Card left: $cardsLeft
+Age: ${if(age == 0) "End" else age}, Card left: $cardsLeft
 Players {
-$pstr
-}"""
+$pstr}"""
     }
 
 }

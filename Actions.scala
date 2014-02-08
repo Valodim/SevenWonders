@@ -25,7 +25,7 @@ abstract class LateAction extends Action {
 
 // pick a card to play. no resource checks are made here, since CardAvailable
 // instances always represent cards which require no additional resources.
-case class ActionPick(option: CardAvailable) extends Action {
+case class ActionPick(option: CardFree) extends Action {
     def apply(p: PlayerState, g: GameState) = (p play(option.card, g), None, Nil)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds $option"
 }
@@ -37,7 +37,10 @@ case class ActionPickWithTrade(option: CardTrade, trade: Trade) extends Action {
             ( (p.number+1) % g.players.length, TradeMoney(trade.toRight, p))
         ))
     }
-    def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading ${trade.toLeft} gold pieces to the left and ${trade.toRight} to the right"
+    def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading " + (List(
+        if(trade.toLeft > 0) s"${trade.toLeft} gold pieces to the left" else Nil,
+        if(trade.toRight > 0) s"${trade.toRight} gold pieces to the right" else Nil
+    ).filter( _ != Nil).mkString(" and "))
 }
 
 // pick a card to stuff as a wonder stage. no resource checks are made here,
@@ -60,7 +63,7 @@ case class ActionWonderWithTrade(option: WonderTrade, trade: Trade, card: CardOp
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading " + (List(
         if(trade.toLeft > 0) s"${trade.toLeft} gold pieces to the left" else Nil,
         if(trade.toRight > 0) s"${trade.toRight} gold pieces to the right" else Nil
-    ).mkString(" and "))
+    ).filter( _ != Nil).mkString(" and "))
 }
 
 // discard a card
@@ -72,4 +75,22 @@ case class ActionDiscard(option: CardOption) extends Action {
 case class TradeMoney(amount: Int, from: PlayerState) extends LateAction {
     def apply(p: PlayerState, g: GameState) = (p addGold(amount), None, Nil)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} gets $amount gold pieces from Player ${from.name}"
+}
+
+case class Trade(toLeft: Int, toRight: Int) {
+    lazy val cost = toLeft + toRight
+
+    def tradeOffer(p: PlayerState, t: CardTrade): Option[ActionPickWithTrade] = {
+        if(t.costsPossible(p, toLeft, toRight))
+            Some(ActionPickWithTrade(t, this))
+        else
+            None
+    }
+    def tradeOffer(p: PlayerState, t: WonderTrade, card: CardOption): Option[ActionWonderWithTrade] = {
+        if(t.costsPossible(p, toLeft, toRight))
+            Some(ActionWonderWithTrade(t, this, card))
+        else
+            None
+    }
+
 }

@@ -6,7 +6,7 @@ object Seven extends App {
     var g = GameState.newGame
     var continue = true
 
-    while(continue) {
+    while(continue && g.age > 0) {
         println(s"Age ${g.age}, ${g.cardsLeft} cards left")
         readLine() match {
             case "p" => { println(g) }
@@ -16,6 +16,8 @@ object Seven extends App {
             case _ => { println("Invalid command") }
         }
     }
+
+    println("See ya!")
 
     def interactiveTurn(g: GameState): Option[GameState] = {
         val (p, ps) = (g.players.head, g.players.tail)
@@ -53,12 +55,12 @@ object Seven extends App {
         option flatMap {
             // discard? just pick any~
             case x: OptionDiscard => interactiveCard(cardOptions) map ActionDiscard
-            // if the player picked an available card, just wrap it in an action
-            case x: CardAvailable => Some(ActionPick(x))
+            // if the player picked an available card (chain or all resources available), just wrap it in an action
+            case x: CardFree => Some(ActionPick(x))
             // if trade is needed, get a trade instance as well
             case t: CardTrade => interactiveTrade(p, g, t) flatMap ( _.tradeOffer(p, t) )
             // it's a wonder - but which card to stuff?
-            case x: WonderOption => {
+            case x: WonderAvailable => {
                 // stuff it
                 interactiveCard(cardOptions) flatMap { stuff =>
                     x match {
@@ -66,6 +68,10 @@ object Seven extends App {
                         case t: WonderTrade => interactiveTrade(p, g, t) flatMap ( _.tradeOffer(p, t, stuff) )
                     }
                 }
+            }
+            case _ => {
+                println("Illegal move")
+                None
             }
         }
 

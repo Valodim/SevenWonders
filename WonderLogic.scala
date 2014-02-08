@@ -36,8 +36,16 @@ abstract class Wonder {
         if( (req - (left + right)) isEmpty) {
             val leftOnly = req - right
             val rightOnly = req - left
-            // TODO the "either" isn't quite right here
-            return WonderTrade(stage, req - leftOnly - rightOnly, leftOnly, rightOnly)
+
+            // see if a trade option is viable
+            val trade = WonderTrade(stage, req - leftOnly - rightOnly, leftOnly, rightOnly)
+
+            // if it is, make the offer
+            return if(trade.minCosts(p) <= p.gold)
+                trade
+            else
+                // otherwise, too bad~
+                WonderTradeInsufficientFunds(stage, req - leftOnly - rightOnly, leftOnly, rightOnly)
         }
 
         // otherwise - can't touch this
@@ -61,21 +69,24 @@ abstract class WonderStage {
     val value: Int = 0
     def benefit(p: PlayerState) = p
     def worth(p: PlayerState, g: GameState): Int = value
+
+    override def toString() = this.getClass.getSimpleName
 }
 
 abstract class WonderOption extends PlayerOption {
     val stage: WonderStage
 }
-case class WonderFree(stage: WonderStage) extends WonderOption {
+abstract class WonderAvailable extends WonderOption
+case class WonderFree(stage: WonderStage) extends WonderAvailable {
     override def toString() = s"${Console.GREEN}+${Console.RESET} $stage"
 }
 
-case class WonderTrade(stage: WonderStage, either: Resources, left: Resources, right: Resources) extends WonderOption with TradeOption {
+case class WonderTrade(stage: WonderStage, either: Resources, left: Resources, right: Resources) extends WonderAvailable with TradeOption {
     override def toString() = s"${Console.YELLOW}+${Console.RESET} $stage [e${either.count}+l${left.count}+r${right.count}]"
 }
 
-case class WonderInsufficientFunds(stage: WonderStage) extends WonderOption {
-    override def toString() = s"${Console.RED}—${Console.RESET} $stage"
+case class WonderTradeInsufficientFunds(stage: WonderStage, either: Resources, left: Resources, right: Resources) extends WonderOption with TradeOption {
+    override def toString() = s"${Console.YELLOW}—${Console.RESET} $stage [e${either.count}+l${left.count}+r${right.count}]"
 }
 
 case class WonderUnavailable(stage: WonderStage) extends WonderOption {

@@ -38,7 +38,7 @@ abstract class Card() {
         val req = resourceReq - p.allResources
         // if we have everything - great
         if(req isEmpty)
-            return CardFree(this)
+            return CardJustFree(this)
 
         // check if the required resources minus the potentially available ones is empty
         if( (req - (left + right)) isEmpty) {
@@ -53,7 +53,7 @@ abstract class Card() {
                 trade
             else
                 // otherwise, too bad~
-                CardTradeInsufficientFunds(this, req - leftOnly - rightOnly, left, right)
+                CardTradeInsufficientFunds(this, req - leftOnly - rightOnly, leftOnly, rightOnly)
         }
 
         // otherwise - can't touch this
@@ -114,19 +114,20 @@ abstract class CardOption extends PlayerOption {
     val card: Card
 }
 abstract class CardAvailable extends CardOption
-case class CardFree(card: Card) extends CardAvailable {
+abstract class CardFree extends CardAvailable
+case class CardJustFree(card: Card) extends CardFree {
     override def toString() = Console.GREEN + "+ " + Console.RESET + card
 }
 
-case class CardChain(card: Card) extends CardAvailable {
+case class CardChain(card: Card) extends CardFree {
     override def toString() = Console.BLUE + "+ " + Console.RESET + card
 }
 
-case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption with TradeOption {
+case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardAvailable with TradeOption {
     override def toString() = s"${Console.YELLOW}+${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
 }
 case class CardTradeInsufficientFunds(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption with TradeOption {
-    override def toString() = s"${Console.YELLOW}-${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
+    override def toString() = s"${Console.YELLOW}—${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
 }
 
 case class CardInsufficientFunds(card: Card) extends CardOption {
