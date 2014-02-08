@@ -187,3 +187,8 @@ object GameState {
 
     }
 }
+
+abstract class PlayerOption
+case class OptionDiscard {
+    override def toString() = s"${Console.RED}~${Console.RESET} Discard a card"
+}

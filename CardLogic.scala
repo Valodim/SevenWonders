@@ -102,7 +102,7 @@ object Card {
     ) grouped(7) map(Hand) toList
 }
 
-abstract class CardOption {
+abstract class CardOption extends PlayerOption {
     val card: Card
 }
 abstract class CardAvailable extends CardOption

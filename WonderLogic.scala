@@ -21,7 +21,7 @@ abstract class Wonder {
      */
     def categorize(p: PlayerState, left: Resources, right: Resources): WonderOption = {
         // no stages left - too bad
-        if ( stages.length >= p.wonderStuffed.length )
+        if ( p.wonderStuffed.length >= stages.length )
             return WonderFullyBuilt()
 
         val stage = stages(p.wonderStuffed.length)
@@ -63,28 +63,27 @@ abstract class WonderStage {
     def worth(p: PlayerState, g: GameState): Int = value
 }
 
-abstract class WonderOption {
+abstract class WonderOption extends PlayerOption {
     val stage: WonderStage
 }
-abstract class WonderAvailable extends WonderOption
-case class WonderFree(stage: WonderStage) extends WonderAvailable {
-    override def toString() = s"${Console.GREEN}+ ${Console.RESET} $stage"
+case class WonderFree(stage: WonderStage) extends WonderOption {
+    override def toString() = s"${Console.GREEN}+${Console.RESET} $stage"
 }
 
 case class WonderTrade(stage: WonderStage, either: Resources, left: Resources, right: Resources) extends WonderOption {
-    override def toString() = s"${Console.YELLOW}+ ${Console.RESET} $stage"
+    override def toString() = s"${Console.YELLOW}+${Console.RESET} $stage"
 }
 
 case class WonderInsufficientFunds(stage: WonderStage) extends WonderOption {
-    override def toString() = s"${Console.RED}— ${Console.RESET} $stage"
+    override def toString() = s"${Console.RED}—${Console.RESET} $stage"
 }
 
 case class WonderUnavailable(stage: WonderStage) extends WonderOption {
-    override def toString() = s"${Console.RED}— ${Console.RESET} $stage"
+    override def toString() = s"${Console.RED}—${Console.RESET} $stage"
 }
 
 case class WonderFullyBuilt() extends WonderOption {
     // not sure if gusta...
     override val stage = null
-    override def toString() = s"${Console.RED}— ${Console.RESET} $stage"
+    override def toString() = s"${Console.RED}—${Console.RESET} (wonder fully built)"
 }
