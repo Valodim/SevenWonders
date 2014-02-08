@@ -44,8 +44,16 @@ abstract class Card() {
         if( (req - (left + right)) isEmpty) {
             val leftOnly = req - right
             val rightOnly = req - left
-            // TODO the "either" isn't quite right here
-            return CardTrade(this, req - leftOnly - rightOnly, leftOnly, rightOnly)
+
+            // see if a trade option is viable
+            val trade = CardTrade(this, req - leftOnly - rightOnly, leftOnly, rightOnly)
+
+            // if it is, make the offer
+            return if(trade.minCosts(p) + goldCost <= p.gold)
+                trade
+            else
+                // otherwise, too bad~
+                CardTradeInsufficientFunds(this, req - leftOnly - rightOnly, left, right)
         }
 
         // otherwise - can't touch this
@@ -57,7 +65,7 @@ abstract class Card() {
 }
 
 object Card {
-    def newAgeHands(players: Int, age: Int) = ((players, age) match {
+    def newAgeHands(players: Int, age: Int) = Random.shuffle( ((players, age) match {
         case (3,1) => List(
             WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
             Tongrube(), Forstwirtschaft(),
@@ -99,7 +107,7 @@ object Card {
             ) take (players+2)
         } else
             Nil
-    ) grouped(7) map(Hand) toList
+    )) grouped(7) map(Hand) toList
 }
 
 abstract class CardOption extends PlayerOption {
@@ -116,6 +124,9 @@ case class CardChain(card: Card) extends CardAvailable {
 
 case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption with TradeOption {
     override def toString() = s"${Console.YELLOW}+${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
+}
+case class CardTradeInsufficientFunds(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption with TradeOption {
+    override def toString() = s"${Console.YELLOW}-${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
 }
 
 case class CardInsufficientFunds(card: Card) extends CardOption {

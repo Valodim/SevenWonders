@@ -12,6 +12,7 @@ object Seven extends App {
             case "p" => { println(g) }
             case "q" => { continue = false }
             case "n" => interactiveTurn(g) map { g = _ }
+            case "v" => println(g.players map( _.totalvp(g)) mkString "\n")
             case _ => { println("Invalid command") }
         }
     }
@@ -50,25 +51,33 @@ object Seven extends App {
 
         // further decisions depending on option picked (or None)
         option flatMap {
+            // discard? just pick any~
+            case x: OptionDiscard => interactiveCard(cardOptions) map ActionDiscard
             // if the player picked an available card, just wrap it in an action
             case x: CardAvailable => Some(ActionPick(x))
             // if trade is needed, get a trade instance as well
             case t: CardTrade => interactiveTrade(p, g, t) flatMap ( _.tradeOffer(p, t) )
             // it's a wonder - but which card to stuff?
             case x: WonderOption => {
-                // display cards that can be stuffed
-                cardOptions.zipWithIndex foreach { case (option, i) =>
-                    println(s"$i $option")
-                }
                 // stuff it
-                val stuff = cardOptions(readInt)
-                x match {
-                    case x: WonderFree => Some(ActionWonder(x, stuff))
-                    case t: WonderTrade => interactiveTrade(p, g, t) flatMap ( _.tradeOffer(p, t, stuff) )
+                interactiveCard(cardOptions) flatMap { stuff =>
+                    x match {
+                        case x: WonderFree => Some(ActionWonder(x, stuff))
+                        case t: WonderTrade => interactiveTrade(p, g, t) flatMap ( _.tradeOffer(p, t, stuff) )
+                    }
                 }
             }
         }
 
+    }
+
+    def interactiveCard(cardOptions: List[CardOption]): Option[CardOption] = {
+        // display cards that can be stuffed
+        cardOptions.zipWithIndex foreach { case (option, i) =>
+            println(s"$i $option")
+        }
+
+        Exception.catching(classOf[NumberFormatException]).opt {readInt} flatMap cardOptions.lift
     }
 
     def interactiveTrade(p: PlayerState, g: GameState, t: TradeOption): Option[Trade] = {

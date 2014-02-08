@@ -57,10 +57,10 @@ case class ActionWonderWithTrade(option: WonderTrade, trade: Trade, card: CardOp
             ( (p.number+1) % g.players.length, TradeMoney(trade.toRight, p))
         ))
     }
-    def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading " + List(
-        if(trade.toLeft > 0) "${trade.toLeft} gold pieces to the left" else Nil,
-        if(trade.toRight > 0) "${trade.toRight} gold pieces to the right" else Nil
-    ).mkString(" and ")
+    def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading " + (List(
+        if(trade.toLeft > 0) s"${trade.toLeft} gold pieces to the left" else Nil,
+        if(trade.toRight > 0) s"${trade.toRight} gold pieces to the right" else Nil
+    ).mkString(" and "))
 }
 
 // discard a card
