@@ -11,7 +11,7 @@ case class HalikarnassosAStage1 extends WonderStage {
 }
 case class HalikarnassosAStage2 extends WonderStage {
     override val resourceReq = Resources(ore = 3)
-    // tood: discard pile pick
+    override def benefit(p: PlayerState) = (p, List((p.number, LateHalikarnassos())))
 }
 case class HalikarnassosAStage3 extends WonderStage {
     override val value = 7
@@ -20,16 +20,16 @@ case class HalikarnassosAStage3 extends WonderStage {
 case class HalikarnassosBStage1 extends WonderStage {
     override val value = 2
     override val resourceReq = Resources(ore = 2)
-    // todo: discard pile pick
+    override def benefit(p: PlayerState) = (p, List((p.number, LateHalikarnassos())))
 }
 case class HalikarnassosBStage2 extends WonderStage {
     override val value = 1
     override val resourceReq = Resources(clay = 3)
-    // todo: discard pile pick
+    override def benefit(p: PlayerState) = (p, List((p.number, LateHalikarnassos())))
 }
 case class HalikarnassosBStage3 extends WonderStage {
     override val resourceReq = Resources(glass = 1, papyrus = 1, cloth = 1)
-    // todo: discard pile pick
+    override def benefit(p: PlayerState) = (p, List((p.number, LateHalikarnassos())))
 }
 
 

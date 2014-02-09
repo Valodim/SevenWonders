@@ -134,7 +134,7 @@ case class GameState(
     val discardPile: List[Card] = List()
 ) {
     // draft with given card picks
-    def draft(actions: Seq[Action]): GameState = {
+    def draftEarly(actions: Seq[Action]): (List[PlayerState], List[Card], List[(Int,LateAction)]) = {
         // derive new playerstates after card picks
         val (playersPrime1, discards, lateops) = (players zip actions).map {
             case (player, action) => {
@@ -149,12 +149,19 @@ case class GameState(
         if(cardsLeft == 2)
             newDiscards = newDiscards ::: playersPrime1.map{ _.hand.cards }.flatten
 
+        (playersPrime1, newDiscards, lateops.flatten)
+
+    }
+
+    def draftLate(playersPrime1: List[PlayerState], newDiscards: List[Card], lateops: List[(Int,LateApplicableAction)]): GameState = {
+
         val playersPrime2 = playersPrime1 map { p =>
             var pPrime = p
             // ugly~ if you have a nicer way to do this, I'm all ears
             // only other way I can think of is transforming Action.apply and
             // reducing from there, but that's not really much better...
-            lateops.flatten collect { case (p.number, o) => o } foreach { o =>
+            lateops collect { case (p.number, o) => o } foreach { o =>
+                println(o.describe(pPrime, this))
                 // apply action!
                 pPrime = o(pPrime, this, newDiscards)._1
             }

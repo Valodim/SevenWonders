@@ -18,9 +18,13 @@ abstract class Action {
     def describe(p: PlayerState, g: GameState): String
 }
 abstract class LateAction extends Action {
+    override def apply(p: PlayerState, g: GameState): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)])
+        = apply(p, g, Nil)
     def apply(p: PlayerState, g: GameState, discardPile: List[Card]): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)])
         = apply(p, g)
 }
+abstract class LateApplicableAction extends LateAction
+abstract class LateInteractiveAction extends LateAction
 
 // pick a card to play. no resource checks are made here, since CardAvailable
 // instances always represent cards which require no additional resources.
@@ -71,9 +75,9 @@ case class ActionDiscard(option: CardOption) extends Action {
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} discards a card for 3 gold pieces"
 }
 
-case class LateTrade(amount: Int, from: PlayerState) extends LateAction {
-    def apply(p: PlayerState, g: GameState) = p addGold(amount)
-    def describe(p: PlayerState, g: GameState) = s"Player ${p.name} gets $amount gold pieces from Player ${from.name}"
+case class LateTrade(amount: Int, from: PlayerState) extends LateApplicableAction {
+    override def apply(p: PlayerState, g: GameState) = p addGold(amount)
+    def describe(p: PlayerState, g: GameState) = s"Player ${p.name} gets $amount gold pieces from ${from.name}"
 }
 
 case class Trade(toLeft: Int, toRight: Int) {

@@ -30,7 +30,16 @@ object SevenCli extends App {
     def interactiveTurn(g: GameState): Option[GameState] = {
         val (p, ps) = (g.players.head, g.players.tail)
         interactiveAction(p, g) flatMap {
-            action => Some(g.draft(action :: (ps map { _.pickAny })))
+            action => {
+                val (playersPrime, newDiscards, lateops) = g.draftEarly(action :: (ps map { _.pickAny }))
+                val lateopsPrime: List[(Int, LateApplicableAction)] = lateops map ( _ match {
+                    case (i, o: LateHalikarnassos) => {
+                        (i, interactiveCard(newDiscards.map(CardHalikarnassos)).map(LateApplicableHalikarnassos).get)
+                    }
+                    case (i, o: LateApplicableAction) => (i, o)
+                })
+                Some(g.draftLate(playersPrime, newDiscards, lateopsPrime))
+            }
         }
     }
 

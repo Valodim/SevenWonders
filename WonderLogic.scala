@@ -69,7 +69,7 @@ abstract class WonderStage {
     val resourceReq: Resources = Resources()
     // most commonly, wonder stages are worth some vp. we use this for a default case
     val value: Int = 0
-    def benefit(p: PlayerState) = p
+    def benefit(p: PlayerState): (PlayerState, List[(PlayerNumber,LateAction)]) = p
     def worth(p: PlayerState, g: GameState): Int = value
 
     override def toString() = this.getClass.getSimpleName
@@ -109,4 +109,15 @@ case class ActionPickOlympia(option: CardOption) extends Action {
 
 case class OptionOlympia extends PlayerOption {
     override def toString() = s"${Console.GREEN}!${Console.RESET} [Use Olympia's special]"
+}
+
+case class LateHalikarnassos() extends LateInteractiveAction {
+    def describe(p: PlayerState, g: GameState) = s"${p.name} is going to retrieve a card from the discard pile, courtesy of Halikarnassos"
+}
+case class LateApplicableHalikarnassos(card: CardOption) extends LateApplicableAction {
+    override def apply(p: PlayerState, g: GameState) = p.playForFree(card.card, g)
+    def describe(p: PlayerState, g: GameState) = s"${p.name} retrieves ${card.card} from discard pile, courtesy of Halikarnassos"
+}
+case class CardHalikarnassos(card: Card) extends CardFree {
+    override def toString() = Console.BLUE + "! " + Console.RESET + card
 }
