@@ -36,9 +36,9 @@ case class ActionPick(option: CardFree) extends Action {
 case class ActionPickWithTrade(option: CardTrade, trade: Trade) extends Action {
     def apply(p: PlayerState, g: GameState) = {
         (p.copy(gold = p.gold - trade.cost) play(option.card, g), None, List(
-            ( (p.number-1+g.players.length) % g.players.length, LateTrade(trade.toLeft, p)),
-            ( (p.number+1) % g.players.length, LateTrade(trade.toRight, p))
-        ))
+            if(trade.toLeft > 0) List( ((p.number-1+g.players.length) % g.players.length, LateTrade(trade.toLeft, p)) ) else Nil,
+            if(trade.toRight > 0) List( ((p.number+1) % g.players.length, LateTrade(trade.toRight, p)) ) else Nil
+        ).flatten)
     }
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading " + (List(
         if(trade.toLeft > 0) s"${trade.toLeft} gold pieces to the left" else Nil,
@@ -52,16 +52,18 @@ case class ActionPickWithTrade(option: CardTrade, trade: Trade) extends Action {
 case class ActionWonder(option: WonderFree, card: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = {
         // todo, resource requirements and boundary checks
-        (option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, Nil)
+        val (state, lateops) = option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed)
+        (state, None, lateops)
     }
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds $option"
 }
 case class ActionWonderWithTrade(option: WonderTrade, trade: Trade, card: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = {
-        (option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed), None, List(
-            ( (p.number-1+g.players.length) % g.players.length, TradeMoney(trade.toLeft, p)),
-            ( (p.number+1) % g.players.length, TradeMoney(trade.toRight, p))
-        ))
+        val (state, lateops) = option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed)
+        (state, None, List(
+            if(trade.toLeft > 0) List( ((p.number-1+g.players.length) % g.players.length, LateTrade(trade.toLeft, p)) ) else Nil,
+            if(trade.toRight > 0) List( ((p.number+1) % g.players.length, LateTrade(trade.toRight, p)) ) else Nil
+        ).flatten ++ lateops)
     }
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading " + (List(
         if(trade.toLeft > 0) s"${trade.toLeft} gold pieces to the left" else Nil,
