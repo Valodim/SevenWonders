@@ -1,0 +1,31 @@
+= Seven =
+
+This is an implementation of the excellent Seven Wonders board game by Antoine
+Bauza in Scala. It is a weekend project, mainly serving as a means to finally
+learn myself some Scala. That said I'm sure there are a lot of things that
+could be done better in concept and implementation. Drop me a line on freenode
+if you have comments of any sort - I'd be happy to hear feedback, especially
+about more idiomatic ways to implement things in Scala. I am sure there are a
+lot of places where the approach I have taken is rather naive.
+
+At the point of this writing, all game mechanics, cards and wonders have been
+implemented, along with a basic CLI user interface. Although the implementation
+is mostly true to the rules, there are a couple of places that might behave
+differently.
+
+The code is structured to allow for easy substitution of the UI, and I plan to
+at some point create an IRC UI implementation.
+
+A note on extensions: Both the Leaders and Cities extensions introduce a
+plethora of new game mechanics which are very complicated to cleanly implement.
+They also mess with the perfect strategic balance the original game has, which
+is why I have no plans to implement either of them.
+
+== TODO ==
+
+* Implement test cases
+* Fix bugs
+* Learn Scala properly
+* Implement a ui that is actually playable
+* Fix the behavior of Babylon and Halikarnassos when combined
+
