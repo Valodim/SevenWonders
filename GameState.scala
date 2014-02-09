@@ -96,11 +96,28 @@ case class PlayerState(
     def vp_green(g: GameState): (Int,Int) = {
             // still looking for a nicer way to do this
             val l = List(science._1, science._2, science._3)
-            // todo: wildcards
+
+            def sciencevp(l: List[Int]) = l.map( x => x * x ).sum + 7 * (l min)
+
+            val maxscience: List[Int] = scienceWildCard match {
+                // a general case is surprisingly complicated. doesn't occur in
+                // the game, but I'm not really happy with relying on special
+                // cases like this~
+                case 0 => l
+                case 1 => List(1,0,0).permutations map( _ zip l map { case (x,y) => x+y }) maxBy sciencevp
+                case 2 => (for {
+                        x <- List(1,0,0).permutations
+                        y <- List(1,0,0).permutations
+                    } yield (x zip y zip l) map { case ((x1,x2),x3) => x1+x2+x3 }) maxBy(sciencevp)
+            }
+            if(scienceWildCard > 0) {
+                println(s"Using $scienceWildCard science wildcards as (${maxscience.mkString(",")})")
+            }
+
             // squares + 7*min
-            val squares = l.map( x => x * x ).sum
-            val sets = (l min)
-            // s"($squares+7*$sets)"
+            val squares = maxscience.map( x => x * x ).sum
+            val sets = (maxscience min)
+
             (squares,sets)
     }
 
