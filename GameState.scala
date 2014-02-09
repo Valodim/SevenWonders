@@ -103,7 +103,10 @@ case class PlayerState(
 case class Hand(
     val cards: List[Card]
 ) {
-    def without(card: Card) = copy(cards filter { _ != card })
+    def without(card: Card) = copy(
+        // Yeah you really gotta patch~ it out
+        cards.patch( cards indexOf(card), Nil, 1)
+    )
 
     lazy val pickAny = cards.head
     lazy val length = cards.length
