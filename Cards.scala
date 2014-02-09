@@ -3,15 +3,15 @@ abstract class BrownOrGreyCard extends Card {
     override def benefit(p: PlayerState, g: GameState) = p addResources res
 }
 abstract class BrownCard() extends BrownOrGreyCard {
-    override def toString() = SevenCli.brown + this.getClass.getSimpleName + Console.RESET
+    override def toString() = SevenCli.brown + super.toString + Console.RESET
 }
 abstract class GreyCard() extends BrownOrGreyCard {
-    override def toString() = SevenCli.grey + this.getClass.getSimpleName + Console.RESET
+    override def toString() = SevenCli.grey + super.toString + Console.RESET
 }
 abstract class RedCard() extends Card {
     val value: Int
     override def benefit(p: PlayerState, g: GameState) = p.copy(shields = p.shields + value)
-    override def toString() = SevenCli.red + this.getClass.getSimpleName + Console.RESET
+    override def toString() = SevenCli.red + super.toString + Console.RESET
 }
 abstract class GreenCard() extends Card {
     val value: (Int,Int,Int)
@@ -22,18 +22,18 @@ abstract class GreenCard() extends Card {
             p.science._3 + value._3
         )
     )
-    override def toString() = SevenCli.green + this.getClass.getSimpleName + Console.RESET
+    override def toString() = SevenCli.green + super.toString + Console.RESET
 }
 abstract class BlueCard() extends Card {
     val value: Int
     override def worth(p: PlayerState, g: GameState) = value
-    override def toString() = SevenCli.blue + this.getClass.getSimpleName + Console.RESET
+    override def toString() = SevenCli.blue + super.toString + Console.RESET
 }
 abstract class YellowCard() extends Card {
-    override def toString() = SevenCli.yellow + this.getClass.getSimpleName + Console.RESET
+    override def toString() = SevenCli.yellow + super.toString + Console.RESET
 }
 abstract class PurpleCard() extends Card {
-    override def toString() = SevenCli.purple + this.getClass.getSimpleName + Console.RESET
+    override def toString() = SevenCli.purple + super.toString + Console.RESET
 }
 
 // age 1 brown cards

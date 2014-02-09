@@ -61,6 +61,7 @@ abstract class Card() {
     }
 
     override def toString() = this.getClass.getSimpleName
+    def describe() = this.toString + (if(goldCost > 0) s" ($goldCost)" else "")
 
 }
 
@@ -184,28 +185,28 @@ abstract class CardOption extends PlayerOption {
 abstract class CardAvailable extends CardOption
 abstract class CardFree extends CardAvailable
 case class CardJustFree(card: Card) extends CardFree {
-    override def toString() = Console.GREEN + "+ " + Console.RESET + card
+    override def toString() = s"${Console.GREEN}+${Console.RESET} ${card.describe}"
 }
 
 case class CardChain(card: Card) extends CardFree {
-    override def toString() = Console.BLUE + "+ " + Console.RESET + card
+    override def toString() = s"${Console.BLUE}+${Console.RESET} ${card.describe}"
 }
 
 case class CardTrade(card: Card, either: Resources, left: Resources, right: Resources) extends CardAvailable with TradeOption {
-    override def toString() = s"${Console.YELLOW}+${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
+    override def toString() = s"${Console.YELLOW}+${Console.RESET} ${card.describe} [${either.count}e/${left.count}l/${right.count}r]"
 }
 case class CardTradeInsufficientFunds(card: Card, either: Resources, left: Resources, right: Resources) extends CardOption with TradeOption {
-    override def toString() = s"${Console.YELLOW}—${Console.RESET} $card [${either.count}e/${left.count}l/${right.count}r]"
+    override def toString() = s"${Console.YELLOW}—${Console.RESET} [${either.count}e/${left.count}l/${right.count}r] ${card.describe}"
 }
 
 case class CardInsufficientFunds(card: Card) extends CardOption {
-    override def toString() = Console.RED + "— " + Console.RESET + card
+    override def toString() = s"${Console.RED}—${Console.RESET} ${card.describe}"
 }
 
 case class CardDuplicate(card: Card) extends CardOption {
-    override def toString() = Console.RED + "— " + Console.RESET + card
+    override def toString() = s"${Console.RED}—${Console.RESET} ${card.describe}"
 }
 
 case class CardUnavailable(card: Card) extends CardOption {
-    override def toString() = s"${Console.RED}—${Console.RESET} $card"
+    override def toString() = s"${Console.RED}—${Console.RESET} ${card.describe}"
 }
