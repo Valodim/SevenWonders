@@ -8,7 +8,6 @@ import PlayerState.PlayerNumber
  * As of now, there MAY be exceptions to this where insufficient funds lead
  * to an implicit discard action. This is subject to changes.
  *
- * TODO move trade logic slightly upstream
  * TODO "resource poker" (low prio)
  */
 

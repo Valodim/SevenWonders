@@ -65,40 +65,108 @@ abstract class Card() {
 }
 
 object Card {
-    def newAgeHands(players: Int, age: Int) = Random.shuffle( ((players, age) match {
-        case (3,1) => List(
-            WoodPlace(), ClayPlace(), StonePlace(), OrePlace(),
-            Tongrube(), Forstwirtschaft(),
-            Press(), Weavery(), Glassery(),
-            Bäder(), Altar(), Theatre(),
-            KontorOst(), KontorWest(), Market(),
-            Befestigungsanlage(), Kaserne(), Wachturm(),
-            Apothecary(), Werkstatt(), Skriptorium()
+    def newAgeHands(players: Int, age: Int) = Random.shuffle( (age match {
+        case 1 => List(
+            List( // 3 players
+                WoodPlace(), ClayPlace(), StonePlace(), OrePlace(), Tongrube(), Forstwirtschaft(),
+                Press(), Weavery(), Glassery(),
+                Bäder(), Altar(), Theatre(),
+                KontorOst(), KontorWest(), Market(),
+                Befestigungsanlage(), Kaserne(), Wachturm(),
+                Apothecary(), Werkstatt(), Skriptorium()
+            ),
+            List( // 4 players
+                WoodPlace(), OrePlace(), Ausgrabungsstätte(),
+                Pfandhaus(), Tavern(),
+                Wachturm(),
+                Skriptorium()
+            ),
+            List( // 5 players
+                StonePlace(), ClayPlace(), Waldhöhle(),
+                Altar(),
+                Tavern(),
+                Kaserne(),
+                Apothecary()
+            ),
+            List( // 6 players
+                Baumschule(), Mine(),
+                Press(), Weavery(), Glassery(),
+                Theatre(), Market()
+            ),
+            List( // 7 players
+                Bäder(), Pfandhaus(),
+                Tavern(), KontorOst(), KontorWest(),
+                Befestigungsanlage(), Werkstatt()
+            )
         )
-        case (4,1) => List(
-            WoodPlace(), WoodPlace(), ClayPlace(), StonePlace(), OrePlace(), OrePlace(),
-            Tongrube(), Forstwirtschaft(), Ausgrabungsstätte(),
-            Press(), Weavery(), Glassery(),
-            Pfandhaus(), Bäder(), Altar(), Theatre(),
-            Tavern(), KontorOst(), KontorWest(), Market(),
-            Befestigungsanlage(), Kaserne(), Wachturm(), Wachturm(),
-            Apothecary(), Werkstatt(), Skriptorium()
+        case 2 => List(
+            List( // 3 players
+                Sägewerk(), Bildhauerei(), Ziegelbrennerei(), Giesserei(),
+                Press(), Weavery(), Glassery(),
+                Aquädukt(), Tempel(), Statue(), Gericht(),
+                Forum(), Karawanserei(), Weinberg(),
+                Mauern(), Ställe(), Schiessplatz(),
+                Arzneiausgabe(), Laboratorium(), Bibliothek(), Schule()
+            ),
+            List( // 4 players
+                Sägewerk(), Bildhauerei(), Ziegelbrennerei(), Giesserei(),
+                Basar(),
+                Trainingsgelände(),
+                Arzneiausgabe()
+            ),
+            List( // 5 players
+                Press(), Weavery(), Glassery(),
+                Karawanserei(),
+                Gericht(),
+                Ställe(),
+                Laboratorium()
+            ),
+            List( // 6 players
+                Tempel(),
+                Forum(), Karawanserei(), Weinberg(),
+                Trainingsgelände(), Schiessplatz(),
+                Bibliothek()
+            ),
+            List( // 7 players
+                Aquädukt(), Statue(),
+                Forum(), Basar(),
+                Mauern(), Trainingsgelände(),
+                Schule()
+            )
         )
-        case (3,2) => List(
-            Sägewerk(), Bildhauerei(), Ziegelbrennerei(), Giesserei(),
-            Press(), Weavery(), Glassery(),
-            Aquädukt(), Tempel(), Statue(), Gericht(),
-            Forum(), Karawanserei(), Weinberg(),
-            Mauern(), Ställe(), Schiessplatz(),
-            Arzneiausgabe(), Laboratorium(), Bibliothek(), Schule()
+        case 3 => List(
+            List( // 3 players
+                Pantheon(), Gärten(), Rathaus(), Palast(), Senat(),
+                Hafen(), Leuchtturm(), Arena(),
+                Verteidigungsanlage(), Waffenlager(), Belagerungsmaschinen(),
+                Loge(), Observatorium(), Universität(), Akademie(), Studierzimmer()
+            ),
+            List( // 4 players
+                Gärten(),
+                Hafen(), Handelskammer(),
+                Zirkus(), Waffenlager(),
+                Universität()
+            ),
+            List( // 5 players
+                Rathaus(), Senat(),
+                Arena(),
+                Zirkus(), Belagerungsmaschinen(),
+                Studierzimmer()
+            ),
+            List( // 6 players
+                Pantheon(), Rathaus(),
+                Leuchtturm(), Handelskammer(),
+                Zirkus(),
+                Loge()
+            ),
+            List( // 7 players
+                Palast(),
+                Verteidigungsanlage(), Waffenlager(),
+                Arena(),
+                Observatorium(), Akademie()
+            )
         )
-        case (3,3) => List(
-            Pantheon(), Gärten(), Rathaus(), Palast(), Senat(),
-            Hafen(), Leuchtturm(), Arena(),
-            Verteidigungsanlage(), Waffenlager(), Belagerungsmaschinen(),
-            Loge(), Observatorium(), Universität(), Akademie(), Studierzimmer()
-        )
-    }) ::: (
+    }) take(players-2) flatten) ::: (
         if(age == 3) {
             List(
                 GuildWorkers(), GuildArtisans(), GuildTraders(), GuildPhilosophy(),
@@ -107,7 +175,7 @@ object Card {
             ) take (players+2)
         } else
             Nil
-    )) grouped(7) map(Hand) toList
+    ) grouped(7) map(Hand) toList
 }
 
 abstract class CardOption extends PlayerOption {

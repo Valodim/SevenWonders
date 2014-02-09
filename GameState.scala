@@ -215,9 +215,10 @@ $pstr}"""
 
 object GameState {
     def newGame(): GameState = {
+        val players = 6
 
-        val wonders = Wonder.newGameWonders.take(3)
-        val hands = Card.newAgeHands(3, 1)
+        val wonders = Wonder.newGameWonders.take(players)
+        val hands = Card.newAgeHands(players, 1)
 
         GameState(players = (wonders zip hands).zipWithIndex map { case ((wonder, hand), i) => PlayerState(hand, wonder, i, wonder.res, gold = 3) })
 

@@ -196,6 +196,9 @@ case class Karawanserei() extends YellowCard {
 case class Weinberg() extends YellowCard {
     override def benefit(p: PlayerState, g: GameState) = p addGold( p countAll( _.isInstanceOf[BrownCard], g) )
 }
+case class Basar() extends YellowCard {
+    override def benefit(p: PlayerState, g: GameState) = p addGold( 2 * p.countAll( _.isInstanceOf[GreyCard], g) )
+}
 
 // age 3 yellow cards
 
@@ -208,6 +211,11 @@ case class Leuchtturm() extends YellowCard {
     override val resourceReq = Resources(stone = 1, glass = 1)
     override def benefit(p: PlayerState, g: GameState) = p addGold p.count( _.isInstanceOf[YellowCard] )
     override def worth(p: PlayerState, g: GameState) = p.cards.count( _.isInstanceOf[YellowCard] )
+}
+case class Handelskammer() extends YellowCard {
+    override val resourceReq = Resources(clay = 2, papyrus = 1)
+    override def benefit(p: PlayerState, g: GameState) = p addGold(2 * p.count( _.isInstanceOf[GreyCard] ) )
+    override def worth(p: PlayerState, g: GameState) = 2 * p.count( _.isInstanceOf[GreyCard] )
 }
 case class Arena() extends YellowCard {
     override val resourceReq = Resources(stone = 2, ore = 1)
@@ -236,6 +244,11 @@ case class Mauern() extends RedCard {
     override val resourceReq = Resources(stone = 3)
     override val chains = List(Verteidigungsanlage())
 }
+case class Trainingsgelände() extends RedCard {
+    override val value = 2
+    override val resourceReq = Resources(ore = 2, wood = 1)
+    override val chains = List(Zirkus())
+}
 case class Ställe() extends RedCard {
     override val value = 2
     override val resourceReq = Resources(clay = 1, wood = 1, ore = 1)
@@ -249,6 +262,10 @@ case class Schiessplatz() extends RedCard {
 case class Verteidigungsanlage() extends RedCard {
     override val value = 3
     override val resourceReq = Resources(stone = 1, ore = 3)
+}
+case class Zirkus() extends RedCard {
+    override val value = 3
+    override val resourceReq = Resources(stone = 3, ore = 1)
 }
 case class Waffenlager() extends RedCard {
     override val value = 3
