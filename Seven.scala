@@ -37,9 +37,21 @@ object SevenCli extends App {
 
                 // some LateActions may need conversion to LateApplicableActions (mostly Halikarnassos here)
                 val lateopsPrime: List[(Int, LateApplicableAction)] = lateops map ( _ match {
+                    // special treatment for babylon
+                    case (i, o: LateBabylon) => {
+                        val p = playersPrime(i)
+                        println("Babylon's free action with remaining card:")
+                        val x = interactiveAction(p, g.copy(players = playersPrime))
+                        if(x.isEmpty) {
+                            println("Invalid choice!")
+                            return None
+                        }
+                        (i, LateApplicableBabylon(x.get))
+                    }
                     // special treatment for halikarnassos
                     case (i, o: LateHalikarnassos) => {
-                        println("Free pick from the discard pile:")
+                        val p = playersPrime(i)
+                        println("Halikarnassos' free pick from the discard pile:")
                         val x = interactiveCard(newDiscards.collect{
                             case x if ! p.cards.exists( _ == x) => CardHalikarnassos(x)
                         }).map(LateApplicableHalikarnassos)

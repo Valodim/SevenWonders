@@ -72,7 +72,8 @@ case class PlayerState(
   Stats: $gold Gold, $shields Shields, $redvp red VP, $redlost red -VP, $science + $scienceWildCard Science 
   Trade cost: l$tradeLeft r$tradeRight, ${wonderStuffed.length} cards stuffed
   Cards: ${cards.mkString(", ")}
-  $resources"""
+  Private Resources: $noTradeResources
+  Resources: $resources"""
     }
 
     def battle(g: GameState): PlayerState = {
@@ -145,11 +146,20 @@ case class GameState(
 
         // gonna need this for Halikarnassos at some point
         var newDiscards = discardPile ::: discards.collect { case Some(x) => x }
-        // if this was the last pick, add remaining cards to discard pile
-        if(cardsLeft == 2)
+        var lateopsPrime = lateops.flatten
+
+        // if this was the last pick, ...
+        if(cardsLeft == 2) {
+            // add remaining cards from all players' hands to the discard pile
             newDiscards = newDiscards ::: playersPrime1.map{ _.hand.cards }.flatten
 
-        (playersPrime1, newDiscards, lateops.flatten)
+            // bind endOfAge lateops
+            lateopsPrime = lateopsPrime ::: playersPrime1.flatMap(
+                p => p.wonder.stages.take(p.wonderStuffed.length).flatMap(_.endOfAgeBenefit(p))
+            )
+        }
+
+        (playersPrime1, newDiscards, lateopsPrime)
 
     }
 

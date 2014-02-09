@@ -70,6 +70,7 @@ abstract class WonderStage {
     // most commonly, wonder stages are worth some vp. we use this for a default case
     val value: Int = 0
     def benefit(p: PlayerState): (PlayerState, List[(PlayerNumber,LateAction)]) = p
+    def endOfAgeBenefit(p: PlayerState): List[(PlayerNumber,LateAction)] = Nil
     def worth(p: PlayerState, g: GameState): Int = value
 
     override def toString() = this.getClass.getSimpleName
@@ -120,4 +121,12 @@ case class LateApplicableHalikarnassos(card: CardHalikarnassos) extends LateAppl
 }
 case class CardHalikarnassos(card: Card) extends CardFree {
     override def toString() = Console.BLUE + "! " + Console.RESET + card
+}
+
+case class LateBabylon() extends LateInteractiveAction {
+    def describe(p: PlayerState, g: GameState) = s"${p.name} is going to build an extra card, courtesy of Babylon"
+}
+case class LateApplicableBabylon(a: Action) extends LateApplicableAction {
+    override def apply(p: PlayerState, g: GameState) = a(p, g)
+    def describe(p: PlayerState, g: GameState) = a.describe(p, g) + ", courtesy of Babylon"
 }

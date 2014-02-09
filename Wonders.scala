@@ -93,7 +93,9 @@ case class BabylonBStage1 extends WonderStage {
 }
 case class BabylonBStage2 extends WonderStage {
     override val resourceReq = Resources(wood = 2, glass = 1)
-    // todo: extra action
+    // resources CAN be used twice!
+    // http://boardgamegeek.com/article/5739388#5739388
+    override def endOfAgeBenefit(p: PlayerState) = List((p.number,LateBabylon()))
 }
 case class BabylonBStage3 extends WonderStage {
     override val resourceReq = Resources(clay = 3, papyrus = 1)
