@@ -2,6 +2,11 @@ import PlayerState.PlayerNumber
 
 object PlayerState {
     type PlayerNumber = Int
+
+    // used by the benefit function to allow easy empty LateAction lists
+    implicit def toLateActionTuple(p: PlayerState): (PlayerState, List[(PlayerNumber, LateAction)]) = (p, Nil)
+    // similar for Action.apply
+    implicit def toDiscardLateActionTuple(p: PlayerState): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)]) = (p, None, Nil)
 }
 
 // summary of a player's current state

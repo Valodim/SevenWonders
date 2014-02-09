@@ -25,15 +25,15 @@ abstract class LateAction extends Action {
 // pick a card to play. no resource checks are made here, since CardAvailable
 // instances always represent cards which require no additional resources.
 case class ActionPick(option: CardFree) extends Action {
-    def apply(p: PlayerState, g: GameState) = (p play(option.card, g), None, Nil)
+    def apply(p: PlayerState, g: GameState) = p play(option.card, g)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds $option"
 }
 // pick a card to play. trade decisions~
 case class ActionPickWithTrade(option: CardTrade, trade: Trade) extends Action {
     def apply(p: PlayerState, g: GameState) = {
         (p.copy(gold = p.gold - trade.cost) play(option.card, g), None, List(
-            ( (p.number-1+g.players.length) % g.players.length, TradeMoney(trade.toLeft, p)),
-            ( (p.number+1) % g.players.length, TradeMoney(trade.toRight, p))
+            ( (p.number-1+g.players.length) % g.players.length, LateTrade(trade.toLeft, p)),
+            ( (p.number+1) % g.players.length, LateTrade(trade.toRight, p))
         ))
     }
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds ${option}, trading " + (List(
@@ -71,8 +71,8 @@ case class ActionDiscard(option: CardOption) extends Action {
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} discards a card for 3 gold pieces"
 }
 
-case class TradeMoney(amount: Int, from: PlayerState) extends LateAction {
-    def apply(p: PlayerState, g: GameState) = (p addGold(amount), None, Nil)
+case class LateTrade(amount: Int, from: PlayerState) extends LateAction {
+    def apply(p: PlayerState, g: GameState) = p addGold(amount)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} gets $amount gold pieces from Player ${from.name}"
 }
 

@@ -1,5 +1,7 @@
 import scala.util.Random
 
+import PlayerState.PlayerNumber
+
 abstract class Wonder {
     // the side picked, A = 1, B = 2. may be changed by the player, but only at
     // the beginning of the game. all other wonder-state is kept with the player.
@@ -101,8 +103,7 @@ case class WonderFullyBuilt() extends WonderOption {
 
 case class ActionPickOlympia(option: CardOption) extends Action {
     // play for free, and mark as used in this age
-    def apply(p: PlayerState, g: GameState) =
-        (p.copy(wonder = p.wonder.asInstanceOf[Olympia].copy( specialLastUsed = g.age )) playForFree (option.card, g), None, Nil)
+    def apply(p: PlayerState, g: GameState) = p.copy(wonder = p.wonder.asInstanceOf[Olympia].copy( specialLastUsed = g.age )) playForFree (option.card, g)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds $option for free, courtesy of Olympia"
 }
 
