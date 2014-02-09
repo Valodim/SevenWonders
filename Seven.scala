@@ -29,17 +29,32 @@ object SevenCli extends App {
 
     def interactiveTurn(g: GameState): Option[GameState] = {
         val (p, ps) = (g.players.head, g.players.tail)
+        // pick an action
         interactiveAction(p, g) flatMap {
             action => {
+                // draftEarly step, this is where most of the game happens
                 val (playersPrime, newDiscards, lateops) = g.draftEarly(action :: (ps map { _.pickAny }))
+
+                // some LateActions may need conversion to LateApplicableActions (mostly Halikarnassos here)
                 val lateopsPrime: List[(Int, LateApplicableAction)] = lateops map ( _ match {
+                    // special treatment for halikarnassos
                     case (i, o: LateHalikarnassos) => {
-                        (i, interactiveCard(newDiscards.map{
-                            x => if(p.cards.exists( _ == x)) CardDuplicate(x) else CardHalikarnassos(x)
-                        }).map(LateApplicableHalikarnassos).get)
+                        println("Free pick from the discard pile:")
+                        val x = interactiveCard(newDiscards.collect{
+                            case x if ! p.cards.exists( _ == x) => CardHalikarnassos(x)
+                        }).map(LateApplicableHalikarnassos)
+                        // non-functional breakout
+                        if(x.isEmpty) {
+                            println("Invalid choice!")
+                            return None
+                        }
+                        (i, x.get)
                     }
                     case (i, o: LateApplicableAction) => (i, o)
                 })
+
+                // draftLate step, deals with late effects such as gold gains
+                // from trade, drafts cards and handles new ages
                 Some(g.draftLate(playersPrime, newDiscards, lateopsPrime))
             }
         }
@@ -103,7 +118,7 @@ object SevenCli extends App {
 
     }
 
-    def interactiveCard(cardOptions: List[CardOption]): Option[CardOption] = {
+    def interactiveCard[T <: CardOption](cardOptions: List[T]): Option[T] = {
         // display cards that can be stuffed
         cardOptions.zipWithIndex foreach { case (option, i) =>
             println(s"$i $option")

@@ -114,7 +114,7 @@ case class OptionOlympia extends PlayerOption {
 case class LateHalikarnassos() extends LateInteractiveAction {
     def describe(p: PlayerState, g: GameState) = s"${p.name} is going to retrieve a card from the discard pile, courtesy of Halikarnassos"
 }
-case class LateApplicableHalikarnassos(card: CardOption) extends LateApplicableAction {
+case class LateApplicableHalikarnassos(card: CardHalikarnassos) extends LateApplicableAction {
     override def apply(p: PlayerState, g: GameState) = p.playForFree(card.card, g)
     def describe(p: PlayerState, g: GameState) = s"${p.name} retrieves ${card.card} from discard pile, courtesy of Halikarnassos"
 }
