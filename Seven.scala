@@ -34,7 +34,9 @@ object SevenCli extends App {
                 val (playersPrime, newDiscards, lateops) = g.draftEarly(action :: (ps map { _.pickAny }))
                 val lateopsPrime: List[(Int, LateApplicableAction)] = lateops map ( _ match {
                     case (i, o: LateHalikarnassos) => {
-                        (i, interactiveCard(newDiscards.map(CardHalikarnassos)).map(LateApplicableHalikarnassos).get)
+                        (i, interactiveCard(newDiscards.map{
+                            x => if(p.cards.exists( _ == x)) CardDuplicate(x) else CardHalikarnassos(x)
+                        }).map(LateApplicableHalikarnassos).get)
                     }
                     case (i, o: LateApplicableAction) => (i, o)
                 })
