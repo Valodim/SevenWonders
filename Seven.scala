@@ -1,5 +1,11 @@
 import scala.util.control._
 
+/* (More or less) simple CLI reference UI for the engine.
+ *
+ * Though output is in parts scattered among the game mechanics, input comes
+ * exclusively from inside this class. It should be possible to implement
+ * different interfaces replacing just this object.
+ */
 object SevenCli extends App {
 
     val brown = "\033[38;5;136m"
@@ -13,6 +19,8 @@ object SevenCli extends App {
     // initial game state
     val wonders = GameState.newWonders(4)
     val wonderSides = interactiveWonderSide(wonders.head).get :: wonders.tail.map(_.chooseRandom)
+
+    // GameState, updated continuously while the game is running
     var g = GameState.newGame(wonderSides)
     var continue = true
 
@@ -29,6 +37,7 @@ object SevenCli extends App {
 
     println("See ya!")
 
+    // Yields a WonderSide for a given Wonder, or None on bad input
     def interactiveWonderSide(wonder: Wonder): Option[WonderSide] = {
         println(s"You got ${wonder}! Pick a side:")
         wonder.sides.zipWithIndex.foreach {
@@ -37,6 +46,8 @@ object SevenCli extends App {
         Exception.catching(classOf[NumberFormatException]).opt {readInt} flatMap wonder.sides.lift
     }
 
+    // Wraps an entire turn, yielding a new GameState or None if there was any
+    // kind of input error
     def interactiveTurn(g: GameState): Option[GameState] = {
         val (p, ps) = (g.players.head, g.players.tail)
         // pick an action
@@ -82,6 +93,7 @@ object SevenCli extends App {
         }
     }
 
+    // Yields an Action for a given player in a given GameState, or None on bad input
     def interactiveAction(p: PlayerState, g: GameState): Option[Action] = {
 
         // this block must return an Action, which wraps a PlayerOption
@@ -140,6 +152,7 @@ object SevenCli extends App {
 
     }
 
+    // Yields a CardOption, or None on bad input
     def interactiveCard[T <: CardOption](cardOptions: List[T]): Option[T] = {
         // display cards that can be stuffed
         cardOptions.zipWithIndex foreach { case (option, i) =>
@@ -149,6 +162,7 @@ object SevenCli extends App {
         Exception.catching(classOf[NumberFormatException]).opt {readInt} flatMap cardOptions.lift
     }
 
+    // Yields a Trade for a TradeOption, or None on bad input
     def interactiveTrade(p: PlayerState, g: GameState, t: TradeOption): Option[Trade] = {
         val (fixedLeft, fixedRight) = t.fixedSums(p)
         println(s"left: $fixedLeft, ${t.left}\nright: $fixedRight, ${t.right}\neither: ${t.either}\n")

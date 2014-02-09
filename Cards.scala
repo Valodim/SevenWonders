@@ -1,3 +1,4 @@
+// Card types
 abstract class BrownOrGreyCard extends Card {
     val res: Resources
     override def benefit(p: PlayerState, g: GameState) = p addResources res
@@ -92,6 +93,7 @@ case class Giesserei() extends BrownCard {
     override val res = Resources(ore = 2)
 }
 
+
 // age 1 + 2 grey cards
 case class Press() extends GreyCard {
     override val res = Resources(papyrus = 1)
@@ -102,6 +104,7 @@ case class Weavery() extends GreyCard {
 case class Glassery() extends GreyCard {
     override val res = Resources(glass = 1)
 }
+
 
 // age 1 blue cards
 case class Pfandhaus() extends BlueCard {
@@ -201,7 +204,6 @@ case class Basar() extends YellowCard {
 }
 
 // age 3 yellow cards
-
 case class Hafen() extends YellowCard {
     override val resourceReq = Resources(wood = 1, ore = 1, cloth = 1)
     override def benefit(p: PlayerState, g: GameState) = p addGold p.count( _.isInstanceOf[BrownCard] )
@@ -340,8 +342,8 @@ case class Studierzimmer() extends GreenCard {
     override val value = (0,1,0)
 }
 
-// age 3 purple cards
 
+// age 3 purple cards
 case class GuildWorkers() extends PurpleCard {
     override val resourceReq = Resources(ore = 2, clay = 1, stone = 1, wood = 1)
     override def worth(p: PlayerState, g: GameState) = p countNeighbors( _.isInstanceOf[BrownCard], g)

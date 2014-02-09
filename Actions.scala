@@ -5,25 +5,34 @@ import PlayerState.PlayerNumber
  * decisions (like trade), all actions are legal moves which are playable
  * as-is, all required decisions already made.
  *
- * As of now, there MAY be exceptions to this where insufficient funds lead
- * to an implicit discard action. This is subject to changes.
- *
  * TODO "resource poker" (low prio)
  */
-
 abstract class Action {
     // applies this action to one player of the game state
     // returns new player state, a possibly discarded card
     def apply(p: PlayerState, g: GameState): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)])
     def describe(p: PlayerState, g: GameState): String
 }
+
+/* LateActions represent actions that happen each round after regular actions
+ * are played, but before drafting. This includes passing trade money to other
+ * players, and some special actions (ie, Halikarnassos and Babylon).
+ * LateActions usually occur as tuples (PlayerNumber,LateAction)
+ */
 abstract class LateAction extends Action {
     override def apply(p: PlayerState, g: GameState): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)])
         = apply(p, g, Nil)
     def apply(p: PlayerState, g: GameState, discardPile: List[Card]): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)])
         = apply(p, g)
 }
+
+// LateApplicableActions are applicable as-is
 abstract class LateApplicableAction extends LateAction
+
+/* LateInteractiveActions require interaction from the user (usually yielding
+ * an appropriate LateApplicableAction), which happens in the interface between
+ * GameState.earlyDraft and GameState.lateDraft
+ */
 abstract class LateInteractiveAction extends LateAction
 
 // pick a card to play. no resource checks are made here, since CardAvailable
@@ -32,6 +41,7 @@ case class ActionPick(option: CardFree) extends Action {
     def apply(p: PlayerState, g: GameState) = p play(option.card, g)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds $option"
 }
+
 // pick a card to play. trade decisions~
 case class ActionPickWithTrade(option: CardTrade, trade: Trade) extends Action {
     def apply(p: PlayerState, g: GameState) = {
@@ -51,7 +61,6 @@ case class ActionPickWithTrade(option: CardTrade, trade: Trade) extends Action {
 // resources.
 case class ActionWonder(option: WonderFree, card: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = {
-        // todo, resource requirements and boundary checks
         val (state, lateops) = option.stage benefit p.copy(wonderStuffed = card.card :: p.wonderStuffed)
         (state, None, lateops)
     }
@@ -71,7 +80,7 @@ case class ActionWonderWithTrade(option: WonderTrade, trade: Trade, card: CardOp
     ).filter( _ != Nil).mkString(" and "))
 }
 
-// discard a card
+// Discard some card
 case class ActionDiscard(option: CardOption) extends Action {
     def apply(p: PlayerState, g: GameState) = (p addGold(3) discard(option.card), Some(option.card), Nil)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} discards a card for 3 gold pieces"
@@ -82,6 +91,10 @@ case class LateTrade(amount: Int, from: PlayerState) extends LateApplicableActio
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} gets $amount gold pieces from ${from.name}"
 }
 
+/* A trade is a trade offer made by the interface. It can be checked for
+ * validity, returning the associated Action. This should be the only way
+ * for the UI to ever acquire Actions involving trade.
+ */
 case class Trade(toLeft: Int, toRight: Int) {
     lazy val cost = toLeft + toRight
 

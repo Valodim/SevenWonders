@@ -9,19 +9,15 @@ abstract class Wonder {
 }
 
 abstract class WonderSide {
-    // the side picked, A = 1, B = 2. may be changed by the player, but only at
-    // the beginning of the game. all other wonder-state is kept with the player.
 
     // resources provided by the wonder
     val res = Resources()
+    // stages that can be built
     val stages: List[WonderStage]
 
-    /** Central method for categorizing if and how a player can play a card.
-     * This is the main place where resource, gold and other requirements for
-     * cards are checked.
-     *
-     * @returns A CardOption instance, which is required to instantiate a
-     * PickAction object, which is the only way a player can play cards.
+    /** An equivalent method to Card.categorize to retrieve if and how the
+     * player may upgrade their wonder.
+     * @see Card.categorize
      */
     def categorize(p: PlayerState, left: Resources, right: Resources): WonderOption = {
         // no stages left - too bad
@@ -61,11 +57,15 @@ abstract class WonderSide {
 }
 
 object Wonder {
-    val wonders = Random.shuffle(List( Babylon(), Halikarnassos(), Olympia(), Rhodos(), Ephesos(), Alexandria(), Gizah() ))
+    val wonders = List( Babylon(), Halikarnassos(), Olympia(), Rhodos(), Ephesos(), Alexandria(), Gizah() )
 
-    def newGameWonders(): List[Wonder] = wonders
+    def newGameWonders(): List[Wonder] = Random.shuffle(wonders)
 }
 
+/* Abstract class for all stages of all wonders. This is similar to the Card
+ * instance, yielding a benefit, worth and an additional endOfAgeBenefit (for
+ * Babylon~, special little snowflake)
+ */
 abstract class WonderStage {
     val goldCost: Int = 0
     val resourceReq: Resources = Resources()
