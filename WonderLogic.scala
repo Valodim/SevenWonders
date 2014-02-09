@@ -98,3 +98,14 @@ case class WonderFullyBuilt() extends WonderOption {
     override val stage = null
     override def toString() = s"${Console.RED}—${Console.RESET} (wonder fully built)"
 }
+
+case class ActionPickOlympia(option: CardOption) extends Action {
+    // play for free, and mark as used in this age
+    def apply(p: PlayerState, g: GameState) =
+        (p.copy(wonder = p.wonder.asInstanceOf[Olympia].copy( specialLastUsed = g.age )) playForFree (option.card, g), None, Nil)
+    def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds $option for free, courtesy of Olympia"
+}
+
+case class OptionOlympia extends PlayerOption {
+    override def toString() = s"${Console.GREEN}!${Console.RESET} [Use Olympia's special]"
+}

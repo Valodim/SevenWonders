@@ -44,13 +44,18 @@ object SevenCli extends App {
 
         // all options available to the player (including unavailable ones!)
         val cardOptions = p.hand.options(p, lefty, righty)
-        val options =
+        // not too fond of the use of var here~
+        var options =
             // you can always discard
             OptionDiscard() ::
             // build a wonder stage, possibly
             p.wonder.categorize(p, lefty.resources, righty.resources) ::
             // or any card option
             cardOptions
+
+        // can we use olympia's special?
+        if(p.wonder.isInstanceOf[Olympia] && p.wonderStuffed.length >= 2 && p.wonder.asInstanceOf[Olympia].specialLastUsed < g.age)
+            options = OptionOlympia() :: options
 
         options.zipWithIndex foreach { case (option, i) =>
             println(s"$i $option")
@@ -61,6 +66,8 @@ object SevenCli extends App {
 
         // further decisions depending on option picked (or None)
         option flatMap {
+            // Olympia special!
+            case x: OptionOlympia => interactiveCard(cardOptions) map ActionPickOlympia
             // discard? just pick any~
             case x: OptionDiscard => interactiveCard(cardOptions) map ActionDiscard
             // if the player picked an available card (chain or all resources available), just wrap it in an action

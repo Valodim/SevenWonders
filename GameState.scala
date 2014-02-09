@@ -44,7 +44,7 @@ case class PlayerState(
     lazy val costsRight = List.fill(4)(tradeRight._1) ::: List.fill(3)(tradeRight._2)
 
     def play(card: Card, g: GameState) = card.benefit(card.pay(copy(hand without card, cards = card :: cards)), g)
-    def playForFree(card: Card, g: GameState) = card.benefit(copy(hand without card),g)
+    def playForFree(card: Card, g: GameState) = card.benefit(copy(hand without card, cards = card :: cards), g)
     def discard(card: Card) = copy(hand without card)
 
     def addGold(amount: Int) = copy(gold = gold+amount)

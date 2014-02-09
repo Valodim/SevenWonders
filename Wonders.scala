@@ -34,7 +34,7 @@ case class HalikarnassosBStage3 extends WonderStage {
 
 
 // Olympia Wonder
-case class Olympia extends Wonder {
+case class Olympia(specialLastUsed: Int = 0) extends Wonder {
     override val res = Resources(wood = 1)
     override val stagesA = List(OlympiaAStage1(), OlympiaAStage2(), OlympiaAStage3())
     override val stagesB = List(OlympiaBStage1(), OlympiaBStage2(), OlympiaBStage3())
@@ -46,7 +46,6 @@ case class OlympiaAStage1 extends WonderStage {
 }
 case class OlympiaAStage2 extends WonderStage {
     override val resourceReq = Resources(stone = 2)
-    // tood: free build
 }
 case class OlympiaAStage3 extends WonderStage {
     override val value = 7
