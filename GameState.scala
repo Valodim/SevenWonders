@@ -161,6 +161,7 @@ case class GameState(
             // only other way I can think of is transforming Action.apply and
             // reducing from there, but that's not really much better...
             lateops collect { case (p.number, o) => o } foreach { o =>
+                // describe action!
                 println(o.describe(pPrime, this))
                 // apply action!
                 pPrime = o(pPrime, this, newDiscards)._1

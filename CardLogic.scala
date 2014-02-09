@@ -166,7 +166,7 @@ object Card {
                 Observatorium(), Akademie()
             )
         )
-    }) take(players-2) flatten) ::: (
+    }).take(players-2).flatten ::: (
         if(age == 3) {
             List(
                 GuildWorkers(), GuildArtisans(), GuildTraders(), GuildPhilosophy(),
@@ -175,7 +175,7 @@ object Card {
             ) take (players+2)
         } else
             Nil
-    ) grouped(7) map(Hand) toList
+    )) grouped(7) map(Hand) toList
 }
 
 abstract class CardOption extends PlayerOption {
