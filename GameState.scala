@@ -254,14 +254,20 @@ trait TradeOption {
         eitherSplit.map(x => (x zip p.costsRight).collect{ case(1,y) => y }.sum)
 
     def costsPossible(p: PlayerState, toLeft: Int, toRight: Int): Boolean = {
+        allCosts(p) exists( _ == (toLeft, toRight) )
+    }
+    def minCosts(p: PlayerState): Int = {
+        allCosts(p) map { case (l,r) => l+r } min
+    }
+
+    def allCosts(p: PlayerState): List[(Int,Int)] = {
 
         // accumulate cost for left-only and right-only resources
         val (costLeft, costRight) = fixedSums(p)
-        val (restLeft, restRight) = (toLeft - costLeft, toRight - costRight)
 
         // nothing left? early true, then
-        if(restLeft == 0 && restRight == 0 && either.isEmpty)
-            return true
+        if(either.isEmpty)
+            return List((costLeft, costRight))
 
         // check if what's left of our funds works for the "either" resources
         val leftright = splitCosts(p)
@@ -275,32 +281,8 @@ trait TradeOption {
                 case (0,(x,_)) => (x,0)
                 case (1,(_,x)) => (0,x)
             }.unzip
-            ( l.sum, r.sum )
-        } exists( _ == (restLeft, restRight) )
-
-    }
-
-    def minCosts(p: PlayerState): Int = {
-        val (leftCost, rightCost) = fixedSums(p)
-
-        if(either.isEmpty)
-            return leftCost + rightCost
-
-        // get a list of all possible left/right combinations
-        val leftright = splitCosts(p)
-        val combinations = List.fill(leftright.length)(List(0,1)).flatten combinations(leftright.length)
-
-        // check if any possible combination sums up to (toLeft,toRight)
-        val eitherCost = combinations map{ combination =>
-            val (l: List[Int], r: List[Int]) = combination.zip(leftright).map {
-                case (0,(x,_)) => (x,0)
-                case (1,(_,x)) => (0,x)
-            }.unzip
-            ( l.sum, r.sum )
-        } map { case (l,r) => l+r } min
-
-        leftCost + rightCost + eitherCost
-
+            ( l.sum + costLeft, r.sum + costRight )
+        } toList
     }
 
 }
