@@ -76,7 +76,17 @@ case class OlympiaBStage2 extends WonderStage {
 }
 case class OlympiaBStage3 extends WonderStage {
     override val resourceReq = Resources(ore = 2, cloth = 1)
-    // todo: copy guild
+    override def worth(p: PlayerState, g: GameState): Int = {
+        val guilds = (p lefty g).filter(_.isInstanceOf[PurpleCard]) ++ (p righty g).filter(_.isInstanceOf[PurpleCard])
+        if(guilds.isEmpty) {
+            println("Olympia: no guild to copy :(")
+            return 0
+        }
+        val card = guilds maxBy ( _.worth(p, g) )
+        val points = card.worth(p, g)
+        println(s"Olympia: copying $card for $points VP")
+        points
+    }
 }
 
 
