@@ -63,7 +63,8 @@ case class PlayerState(
 
     def lefty(g: GameState) = g.players( (number-1+g.players.length) % g.players.length)
     def righty(g: GameState) = g.players( (number+1) % g.players.length)
-    def count(pred: (Card => Boolean)): Int = cards.count(pred)
+    def count(pred: (Card => Boolean)) = cards.count(pred)
+    def filter(pred: (Card => Boolean)) = cards.filter(pred)
     def countNeighbors(pred: (Card => Boolean), g: GameState): Int = lefty(g).count(pred) + righty(g).count(pred)
     def countAll(pred: (Card => Boolean), g: GameState): Int = count(pred) + countNeighbors(pred, g)
 
@@ -86,22 +87,37 @@ case class PlayerState(
         copy(redvp = redvp + vp*wins, redlost = redlost-losses)
     }
 
-    def totalvp(g: GameState): Int = {
-        // cards' worth
-        cards.map{ _.worth(this, g) }.sum +
-        // wonder stages' worth
-        (wonder.stages take wonderStuffed.length).map{ _.worth(this, g) }.sum +
-        // battle wins and losses
-        redvp + redlost +
-        // consolidation prizes
-        (gold/3) +
-        // science!
-        {
+    def vp_red(g: GameState) = redvp + redlost
+    def vp_coins(g: GameState) = gold/3
+    def vp_wonder(g: GameState) = (wonder.stages take wonderStuffed.length).map{ _.worth(this, g) }.sum
+    def vp_blue(g: GameState) = filter(_.isInstanceOf[BlueCard]).map{ _.worth(this, g) }.sum
+    def vp_yellow(g: GameState) = filter(_.isInstanceOf[BlueCard]).map{ _.worth(this, g) }.sum
+    def vp_purple(g: GameState) = filter(_.isInstanceOf[PurpleCard]).map{ _.worth(this, g) }.sum
+    def vp_green(g: GameState): (Int,Int) = {
             // still looking for a nicer way to do this
             val l = List(science._1, science._2, science._3)
+            // todo: wildcards
             // squares + 7*min
-            l.map( x => x * x ).sum + 7 * (l min)
-        }
+            val squares = l.map( x => x * x ).sum
+            val sets = (l min)
+            // s"($squares+7*$sets)"
+            (squares,sets)
+    }
+
+    def totalvp(g: GameState): String = {
+
+        // science... always special
+        val (squares, sets) = vp_green(g)
+        // all other vp values
+        val vp = List(vp_red _, vp_coins _, vp_wonder _, vp_blue _, vp_yellow _, vp_purple _).map (_(g))
+
+        val colors = List(SevenCli.red, SevenCli.yellow, Console.RESET, SevenCli.blue, SevenCli.yellow, SevenCli.purple)
+        val vpstrings = vp zip colors map {
+            case (v, c) => c + v + Console.RESET
+        } mkString("+")
+
+        vpstrings + s"+${SevenCli.green}($squares+7*$sets)${Console.RESET}" + s" = ${vp.sum+squares+7*sets}"
+
     }
 
 }
