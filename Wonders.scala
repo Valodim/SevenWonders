@@ -1,8 +1,14 @@
 // Halikarnassos Wonder
 case class Halikarnassos extends Wonder {
+    override val sides = List(HalikarnassosA(), HalikarnassosB())
+}
+case class HalikarnassosA extends WonderSide {
     override val res = Resources(cloth = 1)
-    override val stagesA = List(HalikarnassosAStage1(), HalikarnassosAStage2(), HalikarnassosAStage3())
-    override val stagesB = List(HalikarnassosBStage1(), HalikarnassosBStage2(), HalikarnassosBStage3())
+    override val stages = List(HalikarnassosAStage1(), HalikarnassosAStage2(), HalikarnassosAStage3())
+}
+case class HalikarnassosB extends WonderSide {
+    override val res = Resources(cloth = 1)
+    override val stages = List(HalikarnassosBStage1(), HalikarnassosBStage2(), HalikarnassosBStage3())
 }
 
 case class HalikarnassosAStage1 extends WonderStage {
@@ -34,10 +40,16 @@ case class HalikarnassosBStage3 extends WonderStage {
 
 
 // Olympia Wonder
-case class Olympia(specialLastUsed: Int = 0) extends Wonder {
+case class Olympia extends Wonder {
+    override val sides = List(OlympiaA(), OlympiaB())
+}
+case class OlympiaA(specialLastUsed: Int = 0) extends WonderSide {
     override val res = Resources(wood = 1)
-    override val stagesA = List(OlympiaAStage1(), OlympiaAStage2(), OlympiaAStage3())
-    override val stagesB = List(OlympiaBStage1(), OlympiaBStage2(), OlympiaBStage3())
+    override val stages = List(OlympiaAStage1(), OlympiaAStage2(), OlympiaAStage3())
+}
+case class OlympiaB extends WonderSide {
+    override val res = Resources(wood = 1)
+    override val stages = List(OlympiaBStage1(), OlympiaBStage2(), OlympiaBStage3())
 }
 
 case class OlympiaAStage1 extends WonderStage {
@@ -70,9 +82,15 @@ case class OlympiaBStage3 extends WonderStage {
 
 // Babylon Wonder
 case class Babylon extends Wonder {
+    override val sides = List(BabylonA(), BabylonB())
+}
+case class BabylonA extends WonderSide {
     override val res = Resources(clay = 1)
-    override val stagesA = List(BabylonAStage1(), BabylonAStage2(), BabylonAStage3())
-    override val stagesB = List(BabylonBStage1(), BabylonBStage2(), BabylonBStage3())
+    override val stages = List(BabylonAStage1(), BabylonAStage2(), BabylonAStage3())
+}
+case class BabylonB extends WonderSide {
+    override val res = Resources(clay = 1)
+    override val stages = List(BabylonBStage1(), BabylonBStage2(), BabylonBStage3())
 }
 
 case class BabylonAStage1 extends WonderStage {
@@ -104,9 +122,15 @@ case class BabylonBStage3 extends WonderStage {
 
 // Ephesos Wonder
 case class Ephesos extends Wonder {
+    override val sides = List(EphesosA(), EphesosB())
+}
+case class EphesosA extends WonderSide {
     override val res = Resources(papyrus = 1)
-    override val stagesA = List(EphesosAStage1(), EphesosAStage2(), EphesosAStage3())
-    override val stagesB = List(EphesosBStage1(), EphesosBStage2(), EphesosBStage3())
+    override val stages = List(EphesosAStage1(), EphesosAStage2(), EphesosAStage3())
+}
+case class EphesosB extends WonderSide {
+    override val res = Resources(papyrus = 1)
+    override val stages = List(EphesosBStage1(), EphesosBStage2(), EphesosBStage3())
 }
 
 case class EphesosAStage1 extends WonderStage {
@@ -140,9 +164,15 @@ case class EphesosBStage3 extends WonderStage {
 
 // Alexandria Wonder
 case class Alexandria extends Wonder {
+    override val sides = List(AlexandriaA(), AlexandriaB())
+}
+case class AlexandriaA extends WonderSide {
     override val res = Resources(glass = 1)
-    override val stagesA = List(AlexandriaAStage1(), AlexandriaAStage2(), AlexandriaAStage3())
-    override val stagesB = List(AlexandriaBStage1(), AlexandriaBStage2(), AlexandriaBStage3())
+    override val stages = List(AlexandriaAStage1(), AlexandriaAStage2(), AlexandriaAStage3())
+}
+case class AlexandriaB extends WonderSide {
+    override val res = Resources(glass = 1)
+    override val stages = List(AlexandriaBStage1(), AlexandriaBStage2(), AlexandriaBStage3())
 }
 
 case class AlexandriaAStage1 extends WonderStage {
@@ -173,9 +203,15 @@ case class AlexandriaBStage3 extends WonderStage {
 
 // Rhodos wonder
 case class Rhodos extends Wonder {
+    override val sides = List(RhodosA(), RhodosB())
+}
+case class RhodosA extends WonderSide {
     override val res = Resources(ore = 1)
-    override val stagesA = List(RhodosAStage1(), RhodosAStage2(), RhodosAStage3())
-    override val stagesB = List(RhodosBStage1(), RhodosBStage2())
+    override val stages = List(RhodosAStage1(), RhodosAStage2(), RhodosAStage3())
+}
+case class RhodosB extends WonderSide {
+    override val res = Resources(ore = 1)
+    override val stages = List(RhodosBStage1(), RhodosBStage2())
 }
 
 
@@ -205,9 +241,15 @@ case class RhodosBStage2 extends WonderStage {
 
 // Gizah Wonder
 case class Gizah extends Wonder {
+    override val sides = List(GizahA(), GizahB())
+}
+case class GizahA extends WonderSide {
     override val res = Resources(stone = 1)
-    override val stagesA = List(GizahAStage1(), GizahAStage2(), GizahAStage3())
-    override val stagesB = List(GizahBStage1(), GizahBStage2(), GizahBStage3(), GizahBStage4())
+    override val stages = List(GizahAStage1(), GizahAStage2(), GizahAStage3())
+}
+case class GizahB extends WonderSide {
+    override val res = Resources(stone = 1)
+    override val stages = List(GizahBStage1(), GizahBStage2(), GizahBStage3(), GizahBStage4())
 }
 
 case class GizahAStage1 extends WonderStage {

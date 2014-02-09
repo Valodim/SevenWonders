@@ -3,16 +3,18 @@ import scala.util.Random
 import PlayerState.PlayerNumber
 
 abstract class Wonder {
+    val sides: List[WonderSide]
+    def chooseSide(side: Int): WonderSide = sides(side)
+    def chooseRandom() = sides(Random.nextInt(sides.length))
+}
+
+abstract class WonderSide {
     // the side picked, A = 1, B = 2. may be changed by the player, but only at
     // the beginning of the game. all other wonder-state is kept with the player.
-    val side = 1
 
     // resources provided by the wonder
     val res = Resources()
-    val stagesA: List[WonderStage]
-    val stagesB: List[WonderStage]
-
-    lazy val stages = if(side == 1) stagesA else stagesB
+    val stages: List[WonderStage]
 
     /** Central method for categorizing if and how a player can play a card.
      * This is the main place where resource, gold and other requirements for
@@ -59,9 +61,9 @@ abstract class Wonder {
 }
 
 object Wonder {
-    val wonders = List( Rhodos(), Ephesos(), Alexandria(), Babylon(), Olympia(), Halikarnassos(), Gizah() )
+    val wonders = Random.shuffle(List( Babylon(), Halikarnassos(), Olympia(), Rhodos(), Ephesos(), Alexandria(), Gizah() ))
 
-    def newGameWonders(): List[Wonder] = Random.shuffle(wonders)
+    def newGameWonders(): List[Wonder] = wonders
 }
 
 abstract class WonderStage {
@@ -104,7 +106,7 @@ case class WonderFullyBuilt() extends WonderOption {
 
 case class ActionPickOlympia(option: CardOption) extends Action {
     // play for free, and mark as used in this age
-    def apply(p: PlayerState, g: GameState) = p.copy(wonder = p.wonder.asInstanceOf[Olympia].copy( specialLastUsed = g.age )) playForFree (option.card, g)
+    def apply(p: PlayerState, g: GameState) = p.copy(wonder = p.wonder.asInstanceOf[OlympiaA].copy( specialLastUsed = g.age )) playForFree (option.card, g)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} builds $option for free, courtesy of Olympia"
 }
 

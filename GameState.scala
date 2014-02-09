@@ -14,7 +14,7 @@ case class PlayerState(
     // player's current hand
     val hand: Hand,
     // so many wonders~
-    val wonder: Wonder,
+    val wonder: WonderSide,
     // player number
     val number: PlayerNumber,
     // fixed resources (starts with wonder resources)
@@ -240,10 +240,11 @@ $pstr}"""
 }
 
 object GameState {
-    def newGame(): GameState = {
+    def newWonders(players: Int): List[Wonder] = Wonder.newGameWonders.take(players)
+
+    def newGame(wonders: List[WonderSide]): GameState = {
         val players = 6
 
-        val wonders = Wonder.newGameWonders.take(players)
         val hands = Card.newAgeHands(players, 1)
 
         GameState(players = (wonders zip hands).zipWithIndex map { case ((wonder, hand), i) => PlayerState(hand, wonder, i, wonder.res, gold = 3) })

@@ -11,7 +11,9 @@ object SevenCli extends App {
     val grey = "\033[38;5;241m"
 
     // initial game state
-    var g = GameState.newGame
+    val wonders = GameState.newWonders(4)
+    val wonderSides = interactiveWonderSide(wonders.head).get :: wonders.tail.map(_.chooseRandom)
+    var g = GameState.newGame(wonderSides)
     var continue = true
 
     while(continue && g.age > 0) {
@@ -26,6 +28,14 @@ object SevenCli extends App {
     }
 
     println("See ya!")
+
+    def interactiveWonderSide(wonder: Wonder): Option[WonderSide] = {
+        println(s"You got ${wonder}! Pick a side:")
+        wonder.sides.zipWithIndex.foreach {
+            case (s,i) => println(s"$i: $s")
+        }
+        Exception.catching(classOf[NumberFormatException]).opt {readInt} flatMap wonder.sides.lift
+    }
 
     def interactiveTurn(g: GameState): Option[GameState] = {
         val (p, ps) = (g.players.head, g.players.tail)
@@ -92,7 +102,7 @@ object SevenCli extends App {
             cardOptions
 
         // can we use olympia's special?
-        if(p.wonder.isInstanceOf[Olympia] && p.wonderStuffed.length >= 2 && p.wonder.asInstanceOf[Olympia].specialLastUsed < g.age)
+        if(p.wonder.isInstanceOf[OlympiaA] && p.wonderStuffed.length >= 2 && p.wonder.asInstanceOf[OlympiaA].specialLastUsed < g.age)
             options = OptionOlympia() :: options
 
         options.zipWithIndex foreach { case (option, i) =>
