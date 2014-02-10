@@ -9,7 +9,21 @@ object PlayerState {
     implicit def toDiscardLateActionTuple(p: PlayerState): (PlayerState, Option[Card], List[(PlayerNumber, LateAction)]) = (p, None, Nil)
 }
 
-// summary of a player's current state
+/* The PlayerState is the center of all game logic. It contains all information
+ * about a single player at one specific point in time. This includes his position
+ * in relation to other players, his Wonder, Hand, Gold, played Cards, and a
+ * couple of other relevant attributes for different game mechanisms.
+ *
+ * A change of player state always yields a new PlayerState instance, updating
+ * the relevant attributes. Most significantly, this happens when the player
+ * picks a card which is then added to the list of played cards, more often
+ * than not yielding some sort of instant benefit which further alters the
+ * state.
+ *
+ * There are also a number of convenience methods available for querying player
+ * state, including neighbors. Note that information about the latter is only
+ * indirectly available through a passed GameState.
+ */
 case class PlayerState(
     // player's current hand
     val hand: Hand,
@@ -56,11 +70,6 @@ case class PlayerState(
     def addNoTradeResources(r: Resources) = copy(noTradeResources = noTradeResources+r)
     def addResources(r: Resources) = copy(resources = resources+r)
 
-    lazy val pickAny = hand.pickAny.categorize(this, Resources(), Resources()) match {
-        case card: CardFree => ActionPick(card)
-        case card => ActionDiscard(card)
-    }
-
     def lefty(g: GameState) = g.players( (number-1+g.players.length) % g.players.length)
     def righty(g: GameState) = g.players( (number+1) % g.players.length)
     def count(pred: (Card => Boolean)) = cards.count(pred)
@@ -94,6 +103,7 @@ case class PlayerState(
     def vp_yellow(g: GameState) = filter(_.isInstanceOf[YellowCard]).map{ _.worth(this, g) }.sum
     def vp_purple(g: GameState) = filter(_.isInstanceOf[PurpleCard]).map{ _.worth(this, g) }.sum
     def vp_green(g: GameState): (Int,Int) = {
+
             // still looking for a nicer way to do this
             val l = List(science._1, science._2, science._3)
 
@@ -147,20 +157,19 @@ case class Hand(
         cards.patch( cards indexOf(card), Nil, 1)
     )
 
-    lazy val pickAny = cards.head
     lazy val length = cards.length
     lazy override val toString = "Hand: " + cards.mkString(", ")
-
-    def at(i: Int) = cards(i)
 
     // returns options (free, as upgrade, tradeable (with attributes: total, either, left, right), unavailable)
     def options(p: PlayerState, left: PlayerState, right: PlayerState): List[CardOption] = {
         cards map( _.categorize(p, left.resources, right.resources) )
     }
-
-
 }
 
+/* The GameState class contains the entire state of the game, instances often
+ * but not always representing a state after (and before) the players' turn.
+ * Most information is contained in the list of PlayerStates.
+ */
 case class GameState(
     val age: Int = 1,
     val cardsLeft: Int = 7,
@@ -285,7 +294,25 @@ object GameState {
     }
 }
 
+/* A PlayerOption represents any kind of gameplay option a player may have,
+ * like cards that can be played. The specific subclass contains information
+ * about the type of option (card, wonder stage, ...) and in particular if it
+ * is a legal move or not.
+ *
+ * Legal instances of PlayerOption may be wrapped into an appropriate Action,
+ * which can then be applied to a PlayerState, usually as the turn of a player.
+ */
 abstract class PlayerOption
+
+/* The TradeOption trait adds required resources that must be acquired by
+ * trading. An instance including this trait assumes that the specified
+ * resources are actually available, since other cases should lead to
+ * OptionUnavailable.
+ *
+ * The main purpose of this trait is managing different possible ways of
+ * trading for resources, especially those which may be acquired from either
+ * neighbor and possibly at different costs.
+ */
 trait TradeOption {
     val either: Resources
     val left: Resources
@@ -305,13 +332,17 @@ trait TradeOption {
         eitherSplit.map(x => (x zip p.costsLeft).collect{ case(1,y) => y }.sum) zip
         eitherSplit.map(x => (x zip p.costsRight).collect{ case(1,y) => y }.sum)
 
+    // returns true if the given costs are feasible in any combination of spending
     def costsPossible(p: PlayerState, toLeft: Int, toRight: Int): Boolean = {
         allCosts(p) exists( _ == (toLeft, toRight) )
     }
+
+    // returns the minimum cost for this trade
     def minCosts(p: PlayerState): Int = {
         allCosts(p) map { case (l,r) => l+r } min
     }
 
+    // returns all possible combinations of left and right costs for this trade
     def allCosts(p: PlayerState): List[(Int,Int)] = {
 
         // accumulate cost for left-only and right-only resources
@@ -327,17 +358,21 @@ trait TradeOption {
         // get a list of all possible left/right combinations
         val combinations = List.fill(leftright.length)(List(0,1)).flatten combinations(leftright.length)
 
-        // check if any possible combination sums up to (toLeft,toRight)
-        combinations map{ combination =>
+        // compute all possible combinations and their costs
+        (combinations map{ combination =>
             val (l: List[Int], r: List[Int]) = combination.zip(leftright).map {
                 case (0,(x,_)) => (x,0)
                 case (1,(_,x)) => (0,x)
             }.unzip
             ( l.sum + costLeft, r.sum + costRight )
-        } toList
+        } toList) distinct
     }
 
 }
+
+/* Trivial option to represent discarding of a card. Carries no information on
+ * the actual card that is to be discarded.
+ */
 case class OptionDiscard extends PlayerOption {
     override def toString() = s"${Console.RED}~${Console.RESET} [Discard a card]"
 }

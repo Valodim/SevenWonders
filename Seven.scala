@@ -54,7 +54,7 @@ object SevenCli extends App {
         interactiveAction(p, g) flatMap {
             action => {
                 // draftEarly step, this is where most of the game happens
-                val (playersPrime, newDiscards, lateops) = g.draftEarly(action :: (ps map { _.pickAny }))
+                val (playersPrime, newDiscards, lateops) = g.draftEarly(action :: (ps map { pickAny(_) }))
 
                 // some LateActions may need conversion to LateApplicableActions (mostly Halikarnassos here)
                 val lateopsPrime: List[(Int, LateApplicableAction)] = lateops map ( _ match {
@@ -90,6 +90,14 @@ object SevenCli extends App {
                 // from trade, drafts cards and handles new ages
                 Some(g.draftLate(playersPrime, newDiscards, lateopsPrime))
             }
+        }
+    }
+
+    // dummy AI
+    def pickAny(p: PlayerState): Action = {
+        p.hand.cards.head.categorize(p, Resources(), Resources()) match {
+            case card: CardFree => ActionPick(card)
+            case card => ActionDiscard(card)
         }
     }
 
