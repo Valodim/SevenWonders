@@ -236,7 +236,7 @@ case class GameState(
 
     def newAge(playersPrime2: List[PlayerState], newDiscards: List[Card]): GameState = {
         // Do battle!
-        val playersPrime3 = playersPrime2 map { _.battle(this) }
+        val playersPrime3 = playersPrime2 map { _.battle(copy(players = playersPrime2)) }
 
         // this is it?
         if(age == 3)
