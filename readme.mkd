@@ -9,25 +9,36 @@ if you have comments of any sort - I'd be happy to hear feedback, especially
 about more idiomatic ways to implement things in Scala. I am sure there are a
 lot of places where the approach I have taken is rather naive.
 
-At the point of this writing, all game mechanics, cards and wonders have been
+At the point of this writing all game mechanics, cards and wonders have been
 implemented, along with a basic CLI user interface. Although the implementation
 is mostly true to the rules, there are a couple of places that might behave
 differently.
 
+The game runs in a simple mode with player 1 controlled by the UI, all other
+players always pick the first card in their hand discarding if it can't be
+built.
 The code is structured to allow for easy substitution of the UI, and I plan to
-at some point create an IRC UI implementation.
+create an IRC UI implementation at some point. There is no abstraction layer
+for AI yet.
 
-A note on extensions: Both the Leaders and Cities extensions introduce a
-plethora of new game mechanics which are very complicated to cleanly implement.
-They also mess with the perfect strategic balance the original game has, which
-is why I have no plans to implement either of them.
+A note on Seven Wonders extensions: Both the Leaders and Cities extensions come
+with a plethora of new game mechanics, which introduce a lot of special cases
+that are complicated to cleanly implement. They also mess with the perfect
+strategic balance which makes the original game great, which is why I have no
+plans to implement either of them. If you care about those, go fork yourself.
+The repository, that is. :)
+
 
 TODO
 ----
 
+In no particular order
+
+* Translate card names to English (missing a comprehensive list)
 * Implement test cases
 * Fix bugs
 * Learn Scala properly
+* Implement AI(s)
 * Implement a ui that is actually playable
 * Fix the behavior of Babylon and Halikarnassos when combined
 
