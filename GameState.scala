@@ -91,7 +91,7 @@ case class PlayerState(
     def vp_coins(g: GameState) = gold/3
     def vp_wonder(g: GameState) = (wonder.stages take wonderStuffed.length).map{ _.worth(this, g) }.sum
     def vp_blue(g: GameState) = filter(_.isInstanceOf[BlueCard]).map{ _.worth(this, g) }.sum
-    def vp_yellow(g: GameState) = filter(_.isInstanceOf[BlueCard]).map{ _.worth(this, g) }.sum
+    def vp_yellow(g: GameState) = filter(_.isInstanceOf[YellowCard]).map{ _.worth(this, g) }.sum
     def vp_purple(g: GameState) = filter(_.isInstanceOf[PurpleCard]).map{ _.worth(this, g) }.sum
     def vp_green(g: GameState): (Int,Int) = {
             // still looking for a nicer way to do this
