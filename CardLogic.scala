@@ -66,7 +66,7 @@ abstract class Card() {
 }
 
 object Card {
-    def newAgeHands(players: Int, age: Int) = Random.shuffle( (age match {
+    def newAgeCards(players: Int, age: Int) = (age match {
         case 1 => List(
             List( // 3 players
                 WoodPlace(), ClayPlace(), StonePlace(), OrePlace(), Tongrube(), Forstwirtschaft(),
@@ -176,7 +176,9 @@ object Card {
             ) take (players+2)
         } else
             Nil
-    )) grouped(7) map(Hand) toList
+    )
+
+    def newAgeHands(players: Int, age: Int) = Random.shuffle( newAgeCards(players, age) ) grouped(7) map(Hand) toList
 }
 
 abstract class CardOption extends PlayerOption {

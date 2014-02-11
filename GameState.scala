@@ -285,12 +285,8 @@ object GameState {
     def newWonders(players: Int): List[Wonder] = Wonder.newGameWonders.take(players)
 
     def newGame(wonders: List[WonderSide]): GameState = {
-        val players = 6
-
-        val hands = Card.newAgeHands(players, 1)
-
+        val hands = Card.newAgeHands(wonders.length, 1)
         GameState(players = (wonders zip hands).zipWithIndex map { case ((wonder, hand), i) => PlayerState(hand, wonder, i, wonder.res, gold = 3) })
-
     }
 }
 

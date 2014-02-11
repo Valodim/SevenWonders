@@ -5,7 +5,6 @@ import PlayerState.PlayerNumber
 abstract class Wonder {
     val sides: List[WonderSide]
     def chooseSide(side: Int): WonderSide = sides(side)
-    def chooseRandom() = sides(Random.nextInt(sides.length))
 }
 
 abstract class WonderSide {
