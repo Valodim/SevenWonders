@@ -81,9 +81,12 @@ case class ActionWonderWithTrade(option: WonderTrade, trade: Trade, card: CardOp
 }
 
 // Discard some card
-case class ActionDiscard(option: CardOption) extends Action {
-    def apply(p: PlayerState, g: GameState) = (p addGold(3) discard(option.card), Some(option.card), Nil)
+case class ActionDiscard(card: Card) extends Action {
+    def apply(p: PlayerState, g: GameState) = (p addGold(3) discard(card), Some(card), Nil)
     def describe(p: PlayerState, g: GameState) = s"Player ${p.name} discards a card for 3 gold pieces"
+}
+object ActionDiscard {
+    def apply(option: CardOption): ActionDiscard = ActionDiscard(option.card)
 }
 
 case class LateTrade(amount: Int, from: PlayerState) extends LateApplicableAction {

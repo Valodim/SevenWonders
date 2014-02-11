@@ -127,7 +127,7 @@ object InterfaceCli extends Interface {
             // Olympia special!
             case x: OptionOlympia => chooseCard(cardOptions) map ActionPickOlympia
             // discard? just pick any~
-            case x: OptionDiscard => chooseCard(cardOptions) map ActionDiscard
+            case x: OptionDiscard => chooseCard(cardOptions) map(ActionDiscard(_))
             // if the player picked an available card (chain or all resources available), just wrap it in an action
             case x: CardFree => Some(ActionPick(x))
             // if trade is needed, get a trade instance as well
