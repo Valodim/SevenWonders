@@ -84,18 +84,10 @@ class SlightlyLessDumbAI extends AI {
     def specialHalikarnassos(p: PlayerState, g: GameState, newDiscards: List[Card]): Option[LateApplicableHalikarnassos] = None
 
     def decideTrade(p: PlayerState, g: GameState, t: TradeOption): Trade = {
-        val (fixedLeft, fixedRight) = t.fixedSums(p)
-        if(t.either.isEmpty)
-            Trade(fixedLeft, fixedRight)
-        else {
-            val (extraLeft: List[Int], extraRight: List[Int]) = (t.eitherSplit zip t.splitCosts(p)).map{ case (res, (l,r)) =>
-                if(l != r) {
-                    if(l < r) (l,0) else (0,r)
-                } else
-                    if(Random.nextBoolean) (l,0) else (0,r)
-            }.unzip
-            Trade(fixedLeft + extraLeft.sum, fixedRight + extraRight.sum)
-        }
+        // random trade option
+        val costs = t.allCosts(p)
+        val pick = costs(Random.nextInt(costs.length))
+        Trade(pick._1, pick._2)
     }
 
 }
