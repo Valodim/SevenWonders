@@ -56,7 +56,7 @@ abstract class WonderSide {
 }
 
 object Wonder {
-    val wonders = List( Babylon(), Halikarnassos(), Olympia(), Rhodos(), Ephesos(), Alexandria(), Gizah() )
+    val wonders = List( Babylon, Halikarnassos, Olympia, Rhodos, Ephesos, Alexandria, Gizah )
 
     def newGameWonders(): List[Wonder] = Random.shuffle(wonders)
 }
@@ -113,7 +113,7 @@ case class OptionOlympia extends PlayerOption {
     override def toString() = s"${Console.GREEN}!${Console.RESET} [Use Olympia's special]"
 }
 
-case class LateHalikarnassos() extends LateInteractiveAction {
+case object LateHalikarnassos extends LateInteractiveAction {
     def describe(p: PlayerState, g: GameState) = s"${p.name} is going to retrieve a card from the discard pile, courtesy of Halikarnassos"
 }
 case class LateApplicableHalikarnassos(card: CardHalikarnassos) extends LateApplicableAction {
@@ -124,7 +124,7 @@ case class CardHalikarnassos(card: Card) extends CardFree {
     override def toString() = Console.BLUE + "! " + Console.RESET + card
 }
 
-case class LateBabylon() extends LateInteractiveAction {
+case object LateBabylon extends LateInteractiveAction {
     def describe(p: PlayerState, g: GameState) = s"${p.name} is going to build an extra card, courtesy of Babylon"
 }
 case class LateApplicableBabylon(a: Action) extends LateApplicableAction {

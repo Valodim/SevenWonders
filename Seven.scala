@@ -60,12 +60,12 @@ object SevenCli extends App {
         // some LateActions may need conversion to LateApplicableActions (mostly Halikarnassos here)
         val lateopsPrime: List[(Int, LateApplicableAction)] = lateops map ( _ match {
             // special treatment for babylon
-            case (i, o: LateBabylon) => {
+            case (i, LateBabylon) => {
                 val choice = interfaces(i).specialBabylon(playersPrime(i), g.copy(players = playersPrime))
                 (i, choice.get)
             }
             // special treatment for halikarnassos
-            case (i, o: LateHalikarnassos) => {
+            case (i, LateHalikarnassos) => {
                 val p = playersPrime(i)
                 val choice = interfaces(i).specialHalikarnassos(p, g.copy(players = playersPrime), newDiscards)
                 (i, choice.get)
