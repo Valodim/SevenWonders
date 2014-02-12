@@ -195,6 +195,6 @@ trait TradeOption {
 /* Trivial option to represent discarding of a card. Carries no information on
  * the actual card that is to be discarded.
  */
-case class OptionDiscard extends PlayerOption {
+case object OptionDiscard extends PlayerOption {
     override def toString() = s"${Console.RED}~${Console.RESET} [Discard a card]"
 }

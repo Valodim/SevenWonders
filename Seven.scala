@@ -105,7 +105,7 @@ object InterfaceCli extends Interface {
         // not too fond of the use of var here~
         var options =
             // you can always discard
-            OptionDiscard() ::
+            OptionDiscard ::
             // build a wonder stage, possibly
             p.wonder.categorize(p, lefty.resources, righty.resources) ::
             // or any card option
@@ -127,7 +127,7 @@ object InterfaceCli extends Interface {
             // Olympia special!
             case x: OptionOlympia => chooseCard(cardOptions) map ActionPickOlympia
             // discard? just pick any~
-            case x: OptionDiscard => chooseCard(cardOptions) map(ActionDiscard(_))
+            case OptionDiscard => chooseCard(cardOptions) map(ActionDiscard(_))
             // if the player picked an available card (chain or all resources available), just wrap it in an action
             case x: CardFree => Some(ActionPick(x))
             // if trade is needed, get a trade instance as well
