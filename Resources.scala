@@ -7,7 +7,7 @@ case class Resources(
 
     def isEmpty = this.forall( _ == 0 ) && dynamic.isEmpty
     // returns the number of non-null resources
-    def count = this.toList count( _ > 0 )
+    def count = this.toList.sum + dynamic.length
 
     def &(that: Resources): Resources = Resources.fromList(this zip that map { case (l, r) => l min r }, Nil)
     def +(that: Resources): Resources = Resources.fromList(this zip that map { case (l, r) => l + r }, this.dynamic ++ that.dynamic)
