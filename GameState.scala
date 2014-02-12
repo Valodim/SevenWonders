@@ -131,7 +131,13 @@ case class PlayerState(
             (squares,sets)
     }
 
-    def totalvp(g: GameState): String = {
+    def totalvp(g: GameState): Int =  {
+        val vp = List(vp_red _, vp_coins _, vp_wonder _, vp_blue _, vp_yellow _, vp_purple _) map (_(g)) sum
+        val (squares, sets) = vp_green(g)
+        vp + squares + sets
+    }
+
+    def describeTotalVP(g: GameState): String = {
 
         // science... always special
         val (squares, sets) = vp_green(g)
@@ -265,7 +271,7 @@ case class GameState(
         val eog = GameState(0, 0, playersPrime3, discardPile = newDiscards)
         println(eog)
         eog.players.foreach {
-            p => println(s"${p.name} achieved ${p.totalvp(eog)} VP!")
+            p => println(s"${p.name} achieved ${p.describeTotalVP(eog)} VP!")
         }
         eog
     }

@@ -101,10 +101,48 @@ class SlightlyLessDumbAI extends AI {
 }
 
 
+/* Specialized AI, always picks the option with maximum VP value.
+ */
+class SimpleGreedyAI extends AI {
+    def chooseAction(p: PlayerState, g: GameState) = {
+        val options = p.hand.cards map ( _.categorize(p, (p lefty g).resources, (p righty g).resources) ) collect {
+            case o: CardFree => ActionPick(o)
+            case o: CardTrade => decideTrade(p, g, o) tradeOffer(p, o) getOrElse {
+                println("bad trade? this is a bug :(")
+                ActionDiscard(o)
+            }
+        }
+        if(options.isEmpty)
+            Some(ActionDiscard(p.hand.cards.head))
+        else
+            Some(options maxBy( action => action(p, g)._1 totalvp(g) ))
+    }
+
+    // Yields a WonderSide for a given Wonder, or None on bad input
+    def chooseWonderSide(wonder: Wonder): Option[WonderSide] = {
+        Some(wonder.sides(Random.nextInt(wonder.sides.length)))
+    }
+
+    // We don't build wonders so this can never happen
+    def specialBabylon(p: PlayerState, g: GameState): Option[LateApplicableBabylon] = None
+
+    // We don't build wonders so this can never happen
+    def specialHalikarnassos(p: PlayerState, g: GameState, newDiscards: List[Card]): Option[LateApplicableHalikarnassos] = None
+
+    // Just pay the minimum costs
+    def decideTrade(p: PlayerState, g: GameState, t: TradeOption): Trade = {
+        // pick minimum costs, with a small penalty for lopsided distribution
+        val costs = t.allCosts(p) minBy ( x => (x._1 + x._2) + 0.1*(x._1-x._2).abs )
+        Trade(costs._1, costs._2)
+    }
+
+}
+
+
 object AI {
 
     def random: AI = {
-        new SlightlyLessDumbAI()
+        new SimpleGreedyAI()
     }
 
 }
